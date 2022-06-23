@@ -1,0 +1,131 @@
+/* FONT PADRAO DA PAGINA */
+
+body {
+  font-family: Tahoma, sans-serif;
+
+}
+
+/* FRAME GERAL DA PAGINA */
+
+.container {
+  width: inherit;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+}
+
+.header h1 {
+  width: inherit;
+  border-radius: 12px;
+  box-shadow: 0px 0px 10px rgb(0, 0, 0, 0.2);
+  padding: 0px 10px;
+  margin: 0px 0px 10px 0px;
+  background-color: white;
+}
+
+/* LINHA 0 */
+
+.row0 {
+  border-radius: 12px;
+  box-shadow: 0px 0px 10px rgb(0, 0, 0, 0.2);
+  padding: 0px 10px;
+  margin: 0px 0px 10px 0px;
+  width: inherit;
+  background-color: white;
+}
+
+/* LINHA 1 */
+
+.row1 {
+  border-radius: 12px;
+  box-shadow: 0px 0px 10px rgb(0, 0, 0, 0.2);
+  padding: 0px 10px;
+  margin: 0px 0px 10px 0px;
+  width: inherit;
+  background-color: white;
+}
+
+/* LINHA 2 */
+
+.row2 {
+  border-radius: 12px;
+  box-shadow: 0px 0px 10px rgb(0, 0, 0, 0.2);
+  padding: 0px 10px;
+  margin: 0px 0px 10px 0px;
+  width: inherit;
+  background-color: white;
+}
+
+/* LINHA 3 */
+
+.row3 {
+  border-radius: 12px;
+  box-shadow: 0px 0px 10px rgb(0, 0, 0, 0.2);
+  margin: 0px 0px 10px 0px;
+  padding: 0px 10px;
+  width: 100%;
+  width: inherit;
+  background-color: white;
+}
+
+/* GRAFICO */
+
+#chartDiv {
+  height: 400px;
+}
+
+/* TABELA DE RENDA */
+
+#tabelaRenda tr:nth-child(even) {
+  background-color: rgb(125, 162, 194, 0.2);
+}
+
+#tabelaRenda th {
+  background-color: rgb(125, 162, 194, 0.2);
+}
+
+/* TABELA DE GASTOS */
+
+#tabelaGastos tr:nth-child(even) {
+  background-color: rgb(201, 56, 56, 0.2);
+}
+
+#tabelaGastos th {
+  background-color: rgb(201, 56, 56, 0.2);
+}
+
+/* TITULOS H1 */
+
+.container h1 {
+  font-size: 32px;
+  font-weight: bold;
+  text-align: left;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+/* TITULOS COM CORES */
+
+#TituloGanhos {
+  color: rgb(125, 162, 194);
+}
+
+#TituloGastos {
+  color: rgb(201, 56, 56);
+}
+
+#TotalGanhos {
+  font-size: 18px;
+  color: rgb(125, 162, 194);
+}
+
+#TotalGastos {
+  font-size: 18px;
+  color: rgb(201, 56, 56);
+}
+
+#TituloEvolucao {
+  font-size: 32px;
+  color: #2f3d48;
+}

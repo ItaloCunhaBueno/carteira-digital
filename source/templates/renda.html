@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="shortcut icon" href="{{url_for('static', filename='favicon.ico')}}" type="image/x-icon" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/renda.css')}}" />
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='js/jquery.toast.min.css')}}" />
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='js/jquery.dataTables.css')}}" />
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='js/jquery-confirm.min.css')}}" />
+
+    <title>Rendas</title>
+</head>
+
+<script type="text/javascript" src="{{url_for('static', filename='js/jquery-3.6.0.min.js')}}"></script>
+<script type="text/javascript" src="{{url_for('static', filename='js/jquery.toast.min.js')}}"></script>
+<script type="text/javascript" src="{{url_for('static', filename='js/jquery.dataTables.js')}}" charset="utf8"></script>
+<script type="text/javascript" src="{{url_for('static', filename='js/jquery-confirm.min.js')}}"></script>
+<script type="text/javascript" src="{{url_for('static', filename='js/jscharting.js')}}"></script>
+<script type="text/javascript" src="{{url_for('static', filename='js/types.js')}}"></script>
+<script type="text/javascript" src="{{url_for('static', filename='js/moment.min.js')}}"></script>
+<script type="text/javascript" src="{{url_for('static', filename='js/datetime-moment.js')}}"></script>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Rendas:</h1>
+        </div>
+        <script>
+            var message = "{{get_flashed_messages()[-1]}}";
+            if (message) {
+                if (message.includes("Erro")) {
+                    $.toast({
+                        heading: "Erro",
+                        text: message,
+                        hideAfter: 3000,
+                        showHideTransition: "slide",
+                        icon: "error",
+                        position: "top-center",
+                        bgColor: "rgb(255, 174, 174)",
+                        textColor: "#2f3d48",
+                        loaderBg: "white",
+                        allowToastClose: true,
+                    });
+                } else {
+                    $.toast({
+                        heading: "Sucesso",
+                        text: message,
+                        hideAfter: 3000,
+                        showHideTransition: "slide",
+                        icon: "success",
+                        position: "top-center",
+                        bgColor: "rgb(125, 162, 194)",
+                        textColor: "#2f3d48",
+                        loaderBg: "white",
+                        allowToastClose: true,
+                    });
+                }
+            }
+        </script>
+        <div class="row1">
+            <h2><p class="material-icons">add_circle_outline</p> Adicionar renda:</h2>
+
+            <form action="/renda_add" method="post" id="add_renda">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Valor</th>
+                            <th>Categoria</th>
+                            <th>Data</th>
+                            <th>Descrição</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <input id="dinheiro" name="valor" type="number" step="0.01" min="0" placeholder="0.00" required />
+                                <script>
+                                    $('#dinheiro').on('keyup', function () {
+                                        let val = parseInt($(this).val().replace(/\D/g, ''))/100
+                                        val = isNaN(val) ? 0 : val
+                                        $(this).val(val)
+                                    })
+                                </script>
+                            </td>
+                            <td>
+                                <select name="categoria" required>
+                                    {% for item in categorias %}
+                                    <option value="{{item}}">{{item}}</option>
+                                    {% endfor %}
+                                </select>
+                            </td>
+                            <td>
+                                <input name="data" type="date" placeholder="" required id="data" />
+                                <script>
+                                    document.getElementById('data').valueAsDate = new Date();
+                                </script>
+                            </td>
+                            <td>
+                                <input name="obs" type="text" placeholder="" />
+                            </td>
+                            <td>
+                                <input type="submit" value="Adicionar" class="adicionar" />
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </form>
+        </div>
+        <div class="row2">
+            <h2><p class="material-icons">pie_chart</p> Estatísticas no Ano:</h2>
+            <div id="grafRpC" style="height: 500px; max-width: inherit; margin: 0px;"></div>
+            <script>
+                var chart = JSC.Chart('grafRpC', {
+                    debug: true,
+                    title_position: 'center',
+                    legend: {
+                        template: '%name %icon R$%value (%percentOfTotal%)',
+                        position: 'inside left'
+                    },
+                    defaultSeries: {
+                        type: 'pie',
+                        pointSelection: true
+                    },
+                    defaultPoint_label_text: '%name',
+                    title_label_text: '<b>Rendas por Categoria</b>',
+                    yAxis: {
+                        label_text: 'R$',
+                        formatString: 'n'
+                    },
+                    series: [{
+                        name: 'Categorias',
+                        points: [
+                            {% for categoria in catsGrafRpC %}
+                            {name: '{{categoria}}', y: {{catsGrafRpC[categoria]}}},
+                            {% endfor %}
+                                ]
+                            }]
+                });
+            </script>
+            <div id="grafRpM" style="height:500px; max-width: inherit; margin:0px;"></div>
+            <script>
+                var colors = ['rgb(125, 162, 194)', 'rgb(201, 56, 56)'];
+                var colorText = function(txt, colorIndex) {
+                    return ('<span style="color:' + colors[colorIndex] + '"><b>' + txt + '</b></span>');
+                };
+
+                var meses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
+                var renda = {{GrafRpM}};
+
+                var renda = meses.map(function(e, i) {
+                    return [e, renda[i]];
+                });
+
+                var chart = JSC.chart('grafRpM', {
+                    debug: true,
+                    title_position: 'center',
+                    type: 'column',
+                    title_label_text: '<b>Renda total por mês</b>',
+                    legend_visible: true,
+                    legend: {
+                        position: 'top right'
+                    },
+                    yAxis: {
+                        formatString: 'c',
+                        label_text: "<b>Quantia (R$)</b>",
+                    },
+                    xAxis: {
+                        crosshair_enabled: true,
+                        scale: {
+                            type: 'month'
+                        },
+                        label_text: "<b>Mês</b>",
+                    },
+                    defaultSeries: {
+                        shape: {
+                            opacity: 0.6,
+                            /* Dynamic gradient that will work with any color series */
+                            fill: ['lightenMore', '#f1f1f1', 90]
+                        },
+                        defaultPoint_marker: {
+                            fill: 'white',
+                            type: '',
+                            outline: {
+                                width: 2
+                            }
+                        }
+                    },
+
+                    series: [
+                        {
+                            name: 'Renda',
+                            points: renda,
+                            color: colors[0]
+                        }
+                    ]
+                });
+            </script>
+        </div>
+        <div class="row3">
+            <h2><p class="material-icons">view_list</p> Tabela de rendas:</h2>
+            <table id="tabelaRenda" class="compact stripe hover row-border nowrap order-column">
+                <thead>
+                    <tr>
+                        <th>N#</th>
+                        <th>Valor</th>
+                        <th>Categoria</th>
+                        <th>Data</th>
+                        <th>Descrição</th>
+                        <th><a class="material-icons">delete</a></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in rendas %}
+                    <tr>
+                        <td>{{item}}</td>
+                        <td>R$ {{rendas[item].valor}}</td>
+                        <td>{{rendas[item].categoria}}</td>
+                        <td>{{rendas[item].data}}</td>
+                        <td>{{rendas[item].obs}}</td>
+                        <form action="/renda_del" method="post" id="del_renda">
+                            <td>
+                                <input type="text" value={{item}} name="ID" hidden><input type="submit" value="Deletar" class="adicionar">
+                            </td>
+                        </form>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <script>
+                $(document).ready(function() {
+                    $.fn.dataTable.moment( 'DD/MM/YYYY');
+                    $("#tabelaRenda").DataTable({
+                        pageLength: 50,
+                        order: [[3, 'desc']],
+                        language: {
+                            url: "https://cdn.datatables.net/plug-ins/1.10.19/i18n/Portuguese-Brasil.json",
+                        },
+                    });
+                });
+
+                $("#del_renda*").on("submit", function() {
+                    var $this = $(this); // reference to the current scope
+                    var Data = $this.serializeArray().reduce(function(obj, item) {
+                        obj[item.name] = item.value;
+                        return obj;
+                    }, {});
+
+                    $.confirm({
+                        theme: 'material',
+                        useBootstrap: false,
+                        title: "Tem certeza?",
+                        icon: 'glyphicon glyphicon-heart',
+                        content: "Tem certeza que deseja deletar a linha de N# '" + Data['ID'] + "' ?",
+                        type: 'red',
+                        typeAnimated: true,
+                        buttons: {
+                            sim: function() {
+                                $this.off("submit").submit();
+                            },
+                            cancelar: function() {},
+                        },
+                    });
+
+                    return false;
+                });
+            </script>
+        </div>
+</body>
+
+</html>
