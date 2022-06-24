@@ -38,7 +38,7 @@
                     <span>Renda</span>
                 </li>
             </a>
-            <a href="#" onclick="abre_pagina(this.id)" id="poupanca">
+            <a href="#" onclick="abre_pagina(this.id)" id="sonhos">
                 <li class="btn 5" title="Sonhos">
                     <p class="material-icons">wallet</p>
                     <span>Sonhos</span>
@@ -101,8 +101,8 @@
                 document.getElementById("conteudo").src = "{{ url_for('gastos') }}";
             } else if (id == "renda") {
                 document.getElementById("conteudo").src = "{{ url_for('renda') }}";
-            } else if (id == "poupanca") {
-                document.getElementById("conteudo").src = "{{ url_for('poupanca') }}";
+            } else if (id == "sonhos") {
+                document.getElementById("conteudo").src = "{{ url_for('sonhos') }}";
             } else if (id == "config") {
                 document.getElementById("conteudo").src = "{{ url_for('config') }}";
             } else if (id == "info") {

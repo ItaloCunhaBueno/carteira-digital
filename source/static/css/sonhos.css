@@ -1,7 +1,11 @@
+/* FONT PADRAO DA PAGINA */
+
 body {
     font-family: Tahoma, sans-serif;
-    text-decoration: none;
+
 }
+
+/* FRAME GERAL DA PAGINA */
 
 @keyframes slideInLeft {
     0% {
@@ -25,35 +29,11 @@ body {
     animation-name: slideInLeft;
 }
 
-.container h1 {
-    font-size: 32px;
-    font-weight: bold;
-    text-align: left;
-}
-
-.row1 {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    width: 600px;
-    height: 300px;
-    position: absolute;
-    top: 50vh;
-    left: 50vw;
-    transform: translate(-50%, -50%);
-    text-align: center;
+.header h1 {
+    width: inherit;
     border-radius: 12px;
     box-shadow: 0px 0px 10px rgb(0, 0, 0, 0.2);
-    padding: 10px 10px;
+    padding: 0px 10px;
+    margin: 0px 0px 10px 0px;
     background-color: white;
-}
-
-.row1 a {
-    text-decoration: none;
-    color: #6693bb;
-}
-
-.row1 ul {
-    list-style: none;
-}
+  }

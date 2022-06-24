@@ -643,13 +643,13 @@ def save_renda_edit():
     
     return redirect(url_for("renda"))
 
-@APP.route("/poupanca")
-def poupanca():
+@APP.route("/sonhos")
+def sonhos():
     '''
     RETORNA A PAGINA POUPANCA COM TODOS OS DADOS NECESSARIOS
     '''
 
-    return render_template("poupanca.html")
+    return render_template("sonhos.html")
 
 
 @APP.route("/config", methods=['GET', 'POST'])

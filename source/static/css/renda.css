@@ -7,12 +7,26 @@ body {
 
 /* FRAME GERAL DA PAGINA */
 
+@keyframes slideInLeft {
+    0% {
+        transform: translateX(-100%);
+    }
+
+    100% {
+        transform: translateX(0);
+    }
+}
+
 .container {
     width: inherit;
     height: 100%;
     display: flex;
     flex-direction: column;
     justify-content: space-evenly;
+    animation-duration: 0.5s;
+    animation-timing-function: ease-in-out;
+    animation-delay: 0s;
+    animation-name: slideInLeft;
 }
 
 .header h1 {
@@ -128,8 +142,6 @@ select:focus {
     font-size: 32px;
     font-weight: bold;
     text-align: left;
-    margin-top: 10px;
-    margin-bottom: 10px;
     color: rgb(125, 162, 194);
   }
 

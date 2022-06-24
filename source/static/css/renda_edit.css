@@ -3,20 +3,32 @@ body {
     text-decoration: none;
 }
 
+@keyframes slideInLeft {
+    0% {
+        transform: translateX(-100%);
+    }
+
+    100% {
+        transform: translateX(0);
+    }
+}
+
 .container {
     width: inherit;
     height: inherit;
     display: flex;
     flex-direction: column;
     justify-content: space-evenly;
+    animation-duration: 0.5s;
+    animation-timing-function: ease-in-out;
+    animation-delay: 0s;
+    animation-name: slideInLeft;
 }
 
 .container h1 {
     font-size: 32px;
     font-weight: bold;
     text-align: left;
-    margin-top: 10px;
-    margin-bottom: 10px;
 }
 
 .row1 {
