@@ -209,6 +209,7 @@
                         <th>Categoria</th>
                         <th>Data</th>
                         <th>Descrição</th>
+                        <th><a class="material-icons">edit</a></th>
                         <th><a class="material-icons">delete</a></th>
                     </tr>
                 </thead>
@@ -220,6 +221,11 @@
                         <td>{{rendas[item].categoria}}</td>
                         <td>{{rendas[item].data}}</td>
                         <td>{{rendas[item].obs}}</td>
+                        <form action="/renda_edit" method="post" id="edit_renda">
+                            <td>
+                                <input type="text" value={{item}} name="ID" hidden><input type="submit" value="Editar" class="adicionar">
+                            </td>
+                        </form>
                         <form action="/renda_del" method="post" id="del_renda">
                             <td>
                                 <input type="text" value={{item}} name="ID" hidden><input type="submit" value="Deletar" class="adicionar">

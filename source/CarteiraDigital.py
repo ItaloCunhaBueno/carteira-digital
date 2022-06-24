@@ -79,6 +79,14 @@ def queryGastos():
                         "data": ajustadata(gasto[4]), "obs": gasto[5]} for gasto in CURSOR.fetchall()}
     return dados
 
+def queryGastoUnico(ID):
+    '''
+    FAZ A QUERY DA LINHA DO ID SELECIONADO
+    '''
+    CURSOR.execute(f"SELECT id, valor, categoria, modal, data, obs FROM gastos WHERE id = {ID}")
+    dados = {valor[0]: {"valor": valor[1], "categoria": valor[2], "modal": valor[3], "data": ajustadata(valor[4]), "obs": valor[5]} for valor in CURSOR.fetchall()}
+    return dados
+
 
 def queryGastosMesAtual():
     '''
@@ -161,6 +169,15 @@ def queryRenda():
     '''
     CURSOR.execute("SELECT id, valor, categoria, data, obs FROM renda")
     dados = {renda[0]: {"valor": renda[1], "categoria": renda[2], "data": ajustadata(renda[3]), "obs": renda[4]} for renda in CURSOR.fetchall()}
+    return dados
+
+
+def queryRendaUnica(ID):
+    '''
+    FAZ A QUERY DA LINHA DO ID SELECIONADO
+    '''
+    CURSOR.execute(f"SELECT id, valor, categoria, data, obs FROM renda WHERE id = {ID}")
+    dados = {valor[0]: {"valor": valor[1], "categoria": valor[2], "data": ajustadata(valor[3]), "obs": valor[4]} for valor in CURSOR.fetchall()}
     return dados
 
 
@@ -346,6 +363,25 @@ def deletaGasto(id):
         flash(f"Erro ao deletar linha {ID}: {e}")
         return False
 
+    
+def editaGasto(id, valor, categoria, modal, data, obs):
+    '''
+    EDITA O GASTO SELECIONADO
+    '''
+    
+    try:
+        HORA = datetime.now().strftime("%H:%M:%S")
+        DATA = f"{data} {HORA}"
+        CURSOR.execute(f"UPDATE gastos SET valor = {valor}, categoria = '{categoria}', modal = '{modal}', data = '{DATA}', obs = '{obs}' WHERE id = {id}")
+        DB.commit()
+        flash(f"Gasto editado com sucesso.")
+        return True
+
+    except Exception as e:
+        print(e)
+        flash(f"Erro ao editar gasto: '{e}'")
+        return False
+
 
 def adicionaRenda(valor, categoria, data, obs):
     '''
@@ -388,6 +424,25 @@ def deletaRenda(id):
     except Exception as e:
         print(e)
         flash(f"Erro ao deletar linha {ID}: {e}")
+        return False
+
+
+def editaRenda(id, valor, categoria, data, obs):
+    '''
+    EDITA A RENDA SELECIONADO
+    '''
+    
+    try:
+        HORA = datetime.now().strftime("%H:%M:%S")
+        DATA = f"{data} {HORA}"
+        CURSOR.execute(f"UPDATE renda SET valor = {valor}, categoria = '{categoria}', data = '{DATA}', obs = '{obs}' WHERE id = {id}")
+        DB.commit()
+        flash(f"Renda editada com sucesso.")
+        return True
+
+    except Exception as e:
+        print(e)
+        flash(f"Erro ao editar renda: '{e}'")
         return False
 
 
@@ -492,6 +547,36 @@ def gastos_del():
     return redirect(url_for("gastos"))
 
 
+@APP.route("/gastos_edit", methods=["POST"])
+def gastos_edit():
+    '''
+    APRESENTA A PAGINA DE EDICAO PARA O ID SELECIONADO
+    '''
+    ID = request.form['ID']
+    VALORES = queryGastoUnico(ID)
+    categorias = listaCategorias()
+    modais = listaModais()
+
+    return render_template('gastos_edit.html', valores=VALORES, categorias=categorias, modais=modais)
+
+
+@APP.route("/save_gasto_edit", methods=["POST"])
+def save_gasto_edit():
+    '''
+    ENVIA A EDICAO PARA O BANCO E RETORNA PARA A PAGINA GASTOS
+    '''
+    
+    id = request.form["id"]
+    valor = request.form['valor']
+    categoria = request.form['categoria']
+    modal = request.form['modal']
+    data = request.form['data']
+    obs = request.form['obs']
+    editaGasto(id, valor, categoria, modal, data, obs)
+    
+    return redirect(url_for("gastos"))
+
+
 @APP.route("/renda", methods=['GET', 'POST'])
 def renda():
     '''
@@ -530,6 +615,33 @@ def renda_del():
 
     return redirect(url_for("renda"))
 
+
+@APP.route("/renda_edit", methods=["POST"])
+def renda_edit():
+    '''
+    APRESENTA A PAGINA DE EDICAO PARA O ID SELECIONADO
+    '''
+    ID = request.form['ID']
+    VALORES = queryRendaUnica(ID)
+    categorias = listaCategorias()
+
+    return render_template('renda_edit.html', valores=VALORES, categorias=categorias)
+
+
+@APP.route("/save_renda_edit", methods=["POST"])
+def save_renda_edit():
+    '''
+    ENVIA A EDICAO PARA O BANCO E RETORNA PARA A PAGINA RENDA
+    '''
+    
+    id = request.form["id"]
+    valor = request.form['valor']
+    categoria = request.form['categoria']
+    data = request.form['data']
+    obs = request.form['obs']
+    editaRenda(id, valor, categoria, data, obs)
+    
+    return redirect(url_for("renda"))
 
 @APP.route("/poupanca")
 def poupanca():
@@ -630,6 +742,6 @@ if __name__ == "__main__":
     print("")
     print("#" * 50)
     print("\n\n")
-    webbrowser.open('http://localhost:8080', new=2)
+    # webbrowser.open('http://localhost:8080', new=2)
     # serve(APP, host='0.0.0.0', port=8080)
     APP.run(host='0.0.0.0', port=8080, debug=True)

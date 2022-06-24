@@ -1,285 +1,295 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="shortcut icon" href="{{url_for('static', filename='favicon.ico')}}" type="image/x-icon" />
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/gastos.css')}}" />
-    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='js/jquery.toast.min.css')}}" />
-    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='js/jquery.dataTables.css')}}" />
-    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='js/jquery-confirm.min.css')}}" />
-    <title>Gastos</title>
-</head>
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="shortcut icon" href="{{url_for('static', filename='favicon.ico')}}" type="image/x-icon" />
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/gastos.css')}}" />
+        <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='js/jquery.toast.min.css')}}" />
+        <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='js/jquery.dataTables.css')}}" />
+        <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='js/jquery-confirm.min.css')}}" />
+        <title>Gastos</title>
+    </head>
 
-<script type="text/javascript" src="{{url_for('static', filename='js/jquery-3.6.0.min.js')}}"></script>
-<script type="text/javascript" src="{{url_for('static', filename='js/jquery.toast.min.js')}}"></script>
-<script type="text/javascript" src="{{url_for('static', filename='js/jquery.dataTables.js')}}" charset="utf8"></script>
-<script type="text/javascript" src="{{url_for('static', filename='js/jquery-confirm.min.js')}}"></script>
-<script type="text/javascript" src="{{url_for('static', filename='js/jscharting.js')}}"></script>
-<script type="text/javascript" src="{{url_for('static', filename='js/types.js')}}"></script>
-<script type="text/javascript" src="{{url_for('static', filename='js/moment.min.js')}}"></script>
-<script type="text/javascript" src="{{url_for('static', filename='js/datetime-moment.js')}}"></script>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>Gastos:</h1>
-        </div>
-        <script>
-            var message = "{{get_flashed_messages()[-1]}}";
-            if (message) {
-                if (message.includes("Erro")) {
-                    $.toast({
-                        heading: "Erro",
-                        text: message,
-                        hideAfter: 3000,
-                        showHideTransition: "slide",
-                        icon: "error",
-                        position: "top-center",
-                        bgColor: "rgb(255, 174, 174)",
-                        textColor: "#2f3d48",
-                        loaderBg: "white",
-                        allowToastClose: true,
-                    });
-                } else {
-                    $.toast({
-                        heading: "Sucesso",
-                        text: message,
-                        hideAfter: 3000,
-                        showHideTransition: "slide",
-                        icon: "success",
-                        position: "top-center",
-                        bgColor: "rgb(125, 162, 194)",
-                        textColor: "#2f3d48",
-                        loaderBg: "white",
-                        allowToastClose: true,
-                    });
+    <script type="text/javascript" src="{{url_for('static', filename='js/jquery-3.6.0.min.js')}}"></script>
+    <script type="text/javascript" src="{{url_for('static', filename='js/jquery.toast.min.js')}}"></script>
+    <script type="text/javascript" src="{{url_for('static', filename='js/jquery.dataTables.js')}}"
+        charset="utf8"></script>
+    <script type="text/javascript" src="{{url_for('static', filename='js/jquery-confirm.min.js')}}"></script>
+    <script type="text/javascript" src="{{url_for('static', filename='js/jscharting.js')}}"></script>
+    <script type="text/javascript" src="{{url_for('static', filename='js/types.js')}}"></script>
+    <script type="text/javascript" src="{{url_for('static', filename='js/moment.min.js')}}"></script>
+    <script type="text/javascript" src="{{url_for('static', filename='js/datetime-moment.js')}}"></script>
+
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>Gastos:</h1>
+            </div>
+            <script>
+                var message = "{{get_flashed_messages()[-1]}}";
+                if (message) {
+                    if (message.includes("Erro")) {
+                        $.toast({
+                            heading: "Erro",
+                            text: message,
+                            hideAfter: 3000,
+                            showHideTransition: "slide",
+                            icon: "error",
+                            position: "top-center",
+                            bgColor: "rgb(255, 174, 174)",
+                            textColor: "#2f3d48",
+                            loaderBg: "white",
+                            allowToastClose: true,
+                        });
+                    } else {
+                        $.toast({
+                            heading: "Sucesso",
+                            text: message,
+                            hideAfter: 3000,
+                            showHideTransition: "slide",
+                            icon: "success",
+                            position: "top-center",
+                            bgColor: "rgb(125, 162, 194)",
+                            textColor: "#2f3d48",
+                            loaderBg: "white",
+                            allowToastClose: true,
+                        });
+                    }
                 }
-            }
-        </script>
-        <div class="row1">
-            <h2><p class="material-icons">add_circle_outline</p> Adicionar gasto:</h2>
+            </script>
+            <div class="row1">
+                <h2>
+                    <p class="material-icons">add_circle_outline</p> Adicionar gasto:
+                </h2>
 
-            <form action="/gastos_add" method="post" id="add_gasto">
-                <table>
+                <form action="/gastos_add" method="post" id="add_gasto">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Valor</th>
+                                <th>Categoria</th>
+                                <th>Modal</th>
+                                <th>Data</th>
+                                <th>Descrição</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <input id="dinheiro" name="valor" type="number" step="0.01" min="0"
+                                        placeholder="0.00" required />
+                                    <script>
+                                        $('#dinheiro').on('keyup', function () {
+                                            let val = parseInt($(this).val().replace(/\D/g, '')) / 100
+                                            val = isNaN(val) ? 0 : val
+                                            $(this).val(val)
+                                        });
+                                    </script>
+                                </td>
+                                <td>
+                                    <select name="categoria" required>
+                                        {% for item in categorias %}
+                                        <option value="{{item}}">{{item}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </td>
+                                <td>
+                                    <select name="modal" required>
+                                        {% for item in modais %}
+                                        <option value="{{item}}">{{item}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </td>
+                                <td>
+                                    <input name="data" type="date" placeholder="" required id="data" />
+                                    <script>
+                                        document.getElementById('data').valueAsDate = new Date();
+                                    </script>
+                                </td>
+                                <td>
+                                        <input name="obs" type="text" placeholder="" />
+                                </td>
+                                <td>
+                                    <input type="submit" value="Adicionar" class="adicionar" />
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </form>
+            </div>
+            <div class="row2">
+                <h2>
+                    <p class="material-icons">pie_chart</p> Estatísticas no Ano:
+                </h2>
+                <div id="grafGpC" style="height:500px; max-width: inherit; margin:0px;"></div>
+                <script>
+                    var chart = JSC.Chart('grafGpC', {
+                        debug: true,
+                        title_position: 'center',
+                        legend: {
+                            template: '%name %icon R$%value (%percentOfTotal%)',
+                            position: 'inside left'
+                        },
+                        defaultSeries: {
+                            type: 'pie',
+                            pointSelection: true
+                        },
+                        defaultPoint_label_text: '%name',
+                        title_label_text: '<b>Gastos por Categoria</b>',
+                        yAxis: {
+                            label_text: 'R$',
+                            formatString: 'n'
+                        },
+                        series: [{
+                            name: 'Categorias',
+                            points: [{% for categoria in catsGrafGpC %}
+                            { name: '{{categoria}}', y: {{ catsGrafGpC[categoria]}}},
+                            {% endfor %}]
+                            }]
+                    });
+                </script>
+                <div id="grafGpM" style="height:500px; max-width: inherit; margin:0px;"></div>
+                <script>
+                    var colors = ['rgb(125, 162, 194)', 'rgb(201, 56, 56)'];
+                    var colorText = function (txt, colorIndex) {
+                        return ('<span style="color:' + colors[colorIndex] + '"><b>' + txt + '</b></span>');
+                    };
+
+                    var meses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
+                    var gasto = {{ GrafGpM }};
+
+                    var gasto = meses.map(function (e, i) {
+                        return [e, gasto[i]];
+                    });
+
+                    var chart = JSC.chart('grafGpM', {
+                        debug: true,
+                        title_position: 'center',
+                        type: 'column',
+                        title_label_text: '<b>Gasto total por mês</b>',
+                        legend_visible: true,
+                        legend: {
+                            position: 'top right'
+                        },
+                        yAxis: {
+                            formatString: 'c',
+                            label_text: "<b>Quantia (R$)</b>",
+                        },
+                        xAxis: {
+                            crosshair_enabled: true,
+                            scale: {
+                                type: 'month'
+                            },
+                            label_text: "<b>Mês</b>",
+                        },
+                        defaultSeries: {
+                            shape: {
+                                opacity: 0.6,
+                                /* Dynamic gradient that will work with any color series */
+                                fill: ['lightenMore', '#f1f1f1', 90]
+                            },
+                            defaultPoint_marker: {
+                                fill: 'white',
+                                type: '',
+                                outline: {
+                                    width: 2
+                                }
+                            }
+                        },
+
+                        series: [
+                            {
+                                name: 'Gastos',
+                                points: gasto,
+                                color: colors[1]
+                            }
+                        ]
+                    });
+                </script>
+            </div>
+            <div class="row3">
+                <h2>
+                    <p class="material-icons">view_list</p> Tabela de gastos:
+                </h2>
+                <table id="tabelaGastos" class="compact stripe hover row-border nowrap order-column">
                     <thead>
                         <tr>
+                            <th>N#</th>
                             <th>Valor</th>
                             <th>Categoria</th>
                             <th>Modal</th>
                             <th>Data</th>
                             <th>Descrição</th>
+                            <th><a class="material-icons">edit</a></th>
+                            <th><a class="material-icons">delete</a></th>
                         </tr>
                     </thead>
                     <tbody>
+                        {% for item in gastos %}
                         <tr>
-                            <td>
-                                <input id="dinheiro" name="valor" type="number" step="0.01" min="0" placeholder="0.00" required/>
-                                <script>
-                                    $('#dinheiro').on('keyup', function () {
-                                        let val = parseInt($(this).val().replace(/\D/g, ''))/100
-                                        val = isNaN(val) ? 0 : val
-                                        $(this).val(val)
-                                    });
-                                </script>
-                            </td>
-                            <td>
-                                <select name="categoria" required>
-                                    {% for item in categorias %}
-                                    <option value="{{item}}">{{item}}</option>
-                                    {% endfor %}
-                                </select>
-                            </td>
-                            <td>
-                                <select name="modal" required>
-                                    {% for item in modais %}
-                                    <option value="{{item}}">{{item}}</option>
-                                    {% endfor %}
-                                </select>
-                            </td>
-                            <td>
-                                <input name="data" type="date" placeholder="" required id="data" />
-                                <script>
-                                    document.getElementById('data').valueAsDate = new Date();
-                                </script>
-                            </td>
-                            <td>
-                                <div class="input-field col s6">
-                                    <input name="obs" type="text" placeholder="" />
-                                </div>
-                                
-                            </td>
-                            <td>
-                                <input type="submit" value="Adicionar" class="adicionar" />
-                            </td>
+                            <td>{{item}}</td>
+                            <td>R$ {{gastos[item].valor}}</td>
+                            <td>{{gastos[item].categoria}}</td>
+                            <td>{{gastos[item].modal}}</td>
+                            <td>{{gastos[item].data}}</td>
+                            <td>{{gastos[item].obs}}</td>
+                            <form action="/gastos_edit" method="post" id="edit_gasto">
+                                <td>
+                                    <input type="text" value={{item}} name="ID" hidden><input type="submit" value="Editar" class="adicionar">
+                                </td>
+                            </form>
+                            <form action="/gastos_del" method="post" id="del_gasto">
+                                <td>
+                                    <input type="text" value={{item}} name="ID" hidden><input type="submit" value="Deletar" class="adicionar">
+                                </td>
+                            </form>
                         </tr>
+                        {% endfor %}
                     </tbody>
                 </table>
-            </form>
-        </div>
-        <div class="row2">
-            <h2><p class="material-icons">pie_chart</p> Estatísticas no Ano:</h2>
-            <div id="grafGpC" style="height:500px; max-width: inherit; margin:0px;"></div>
-            <script>
-                var chart = JSC.Chart('grafGpC', {
-                    debug: true,
-                    title_position: 'center',
-                    legend: {
-                        template: '%name %icon R$%value (%percentOfTotal%)',
-                        position: 'inside left'
-                    },
-                    defaultSeries: {
-                        type: 'pie',
-                        pointSelection: true
-                    },
-                    defaultPoint_label_text: '%name',
-                    title_label_text: '<b>Gastos por Categoria</b>',
-                    yAxis: {
-                        label_text: 'R$',
-                        formatString: 'n'
-                    },
-                    series: [{
-                        name: 'Categorias',
-                        points: [
-                            {% for categoria in catsGrafGpC %}
-                            {name: '{{categoria}}', y: {{catsGrafGpC[categoria]}}},
-                            {% endfor %}
-                                ]
-                            }]
-                });
-            </script>
-            <div id="grafGpM" style="height:500px; max-width: inherit; margin:0px;"></div>
-            <script>
-                var colors = ['rgb(125, 162, 194)', 'rgb(201, 56, 56)'];
-                var colorText = function(txt, colorIndex) {
-                    return ('<span style="color:' + colors[colorIndex] + '"><b>' + txt + '</b></span>');
-                };
-
-                var meses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
-                var gasto = {{GrafGpM}};
-
-                var gasto = meses.map(function(e, i) {
-                    return [e, gasto[i]];
-                });
-
-                var chart = JSC.chart('grafGpM', {
-                    debug: true,
-                    title_position: 'center',
-                    type: 'column',
-                    title_label_text: '<b>Gasto total por mês</b>',
-                    legend_visible: true,
-                    legend: {
-                        position: 'top right'
-                    },
-                    yAxis: {
-                        formatString: 'c',
-                        label_text: "<b>Quantia (R$)</b>",
-                    },
-                    xAxis: {
-                        crosshair_enabled: true,
-                        scale: {
-                            type: 'month'
-                        },
-                        label_text: "<b>Mês</b>",
-                    },
-                    defaultSeries: {
-                        shape: {
-                            opacity: 0.6,
-                            /* Dynamic gradient that will work with any color series */
-                            fill: ['lightenMore', '#f1f1f1', 90]
-                        },
-                        defaultPoint_marker: {
-                            fill: 'white',
-                            type: '',
-                            outline: {
-                                width: 2
-                            }
-                        }
-                    },
-
-                    series: [
-                        {
-                            name: 'Gastos',
-                            points: gasto,
-                            color: colors[1]
-                        }
-                    ]
-                });
-            </script>
-        </div>
-        <div class="row3">
-            <h2><p class="material-icons">view_list</p> Tabela de gastos:</h2>
-            <table id="tabelaGastos" class="compact stripe hover row-border nowrap order-column">
-                <thead>
-                    <tr>
-                        <th>N#</th>
-                        <th>Valor</th>
-                        <th>Categoria</th>
-                        <th>Modal</th>
-                        <th>Data</th>
-                        <th>Descrição</th>
-                        <th><a class="material-icons">delete</a></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in gastos %}
-                    <tr>
-                        <td>{{item}}</td>
-                        <td>R$ {{gastos[item].valor}}</td>
-                        <td>{{gastos[item].categoria}}</td>
-                        <td>{{gastos[item].modal}}</td>
-                        <td>{{gastos[item].data}}</td>
-                        <td>{{gastos[item].obs}}</td>
-                        <form action="/gastos_del" method="post" id="del_gasto">
-                            <td>
-                                <input type="text" value={{item}} name="ID" hidden><input type="submit" value="Deletar" class="adicionar">
-                            </td>
-                        </form>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            <script>
-                $(document).ready(function() {
-                    $.fn.dataTable.moment( 'DD/MM/YYYY');
-                    $("#tabelaGastos").DataTable({
-                        pageLength: 50,
-                        order: [[4, 'desc']],
-                        language: {
-                            url: "https://cdn.datatables.net/plug-ins/1.10.19/i18n/Portuguese-Brasil.json",
-                        },
-                    });
-                });
-
-                $("#del_gasto*").on("submit", function() {
-                    var $this = $(this); // reference to the current scope
-                    var Data = $this.serializeArray().reduce(function(obj, item) {
-                        obj[item.name] = item.value;
-                        return obj;
-                    }, {});
-
-                    $.confirm({
-                        theme: 'material',
-                        useBootstrap: false,
-                        title: "Tem certeza?",
-                        icon: 'glyphicon glyphicon-heart',
-                        content: "Tem certeza que deseja deletar a linha de N# '" + Data['ID'] + "' ?",
-                        type: 'red',
-                        typeAnimated: true,
-                        buttons: {
-                            sim: function() {
-                                $this.off("submit").submit();
+                <script>
+                    $(document).ready(function () {
+                        $.fn.dataTable.moment('DD/MM/YYYY');
+                        $("#tabelaGastos").DataTable({
+                            pageLength: 50,
+                            order: [[4, 'desc']],
+                            language: {
+                                url: "https://cdn.datatables.net/plug-ins/1.10.19/i18n/Portuguese-Brasil.json",
                             },
-                            cancelar: function() {},
-                        },
+                        });
                     });
 
-                    return false;
-                });
-            </script>
-        </div>
-</body>
+                    $("#del_gasto*").on("submit", function () {
+                        var $this = $(this); // reference to the current scope
+                        var Data = $this.serializeArray().reduce(function (obj, item) {
+                            obj[item.name] = item.value;
+                            return obj;
+                        }, {});
+
+                        $.confirm({
+                            theme: 'material',
+                            useBootstrap: false,
+                            title: "Tem certeza?",
+                            icon: 'glyphicon glyphicon-heart',
+                            content: "Tem certeza que deseja deletar a linha de N# '" + Data['ID'] + "' ?",
+                            type: 'red',
+                            typeAnimated: true,
+                            buttons: {
+                                sim: function () {
+                                    $this.off("submit").submit();
+                                },
+                                cancelar: function () { },
+                            },
+                        });
+
+                        return false;
+                    });
+                </script>
+            </div>
+    </body>
 
 </html>

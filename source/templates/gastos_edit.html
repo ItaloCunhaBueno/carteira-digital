@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/gastos_edit.css')}}" />
+        <title>Editar Gasto</title>
+    </head>
+
+    <script type="text/javascript" src="{{url_for('static', filename='js/jquery-3.6.0.min.js')}}"></script>
+
+    <body>
+
+        <div class="container">
+
+            <div class="row1">
+                <h1>Edição</h1>
+                {% for valor in valores %}
+                <form action="/save_gasto_edit" method="post" id="edit_gasto">
+                    <input name="id" type="text" placeholder="" value={{valor}} hidden />
+
+                    <a class="opcao">
+                        <label>Valor:</label>
+                        <input id="dinheiro" name="valor" type="number" step="0.01" min="0" placeholder="0.00"
+                            value={{valores[valor].valor}} required />
+                        <script>
+                            $('#dinheiro').on('keyup', function () {
+                                let val = parseInt($(this).val().replace(/\D/g, '')) / 100
+                                val = isNaN(val) ? 0 : val
+                                $(this).val(val)
+                            });
+                        </script>
+                    </a>
+                    <a class="opcao">
+                        <label>Categoria:</label>
+                        <select name="categoria" required>
+                            <option value="{{valores[valor].categoria}}" selected hidden>{{valores[valor].categoria}}
+                            </option>
+                            {% for item in categorias %}
+                            <option value="{{item}}">{{item}}</option>
+                            {% endfor %}
+                        </select>
+                    </a>
+                    <a class="opcao">
+                        <label>Modal:</label>
+                        <select name="modal" value={{valores[valor].modal}} required>
+                            <option value="{{valores[valor].modal}}" selected hidden>{{valores[valor].modal}}</option>
+                            {% for item in modais %}
+                            <option value="{{item}}">{{item}}</option>
+                            {% endfor %}
+                        </select>
+                    </a>
+                    <a class="opcao">
+                        <label>Data:</label>
+                        <input name="data" type="date" placeholder="" required id="data" />
+                        <script>
+                            var dataObj = document.getElementById("data");
+                            const dataArray = "{{valores[valor].data}}".split("/");
+                            var data = dataArray[2] + '-' + dataArray[1] + '-' + dataArray[0]
+
+                            dataObj.value = data
+                        </script>
+                    </a>
+                    <a class="opcao">
+                        <label>Descrição:</label>
+                        <input name="obs" type="text" placeholder="" value="{{valores[valor].obs}}" />
+                    </a>
+                    
+                    <input type="submit" value="Editar" class="editar" />
+                </form>
+                {% endfor %}
+                <a class="cancelar" href="{{ url_for('gastos') }}">Cancelar</a>
+            </div>
+
+        </div>
+    </body>
+
+</html>

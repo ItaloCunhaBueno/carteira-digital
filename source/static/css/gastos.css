@@ -121,6 +121,13 @@ select:focus {
     background-color: rgb(201, 56, 56, 0.2);
 }
 
+#acoes {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+
+}
+
 /* TITULOS H1 */
 
 .container h1 {
