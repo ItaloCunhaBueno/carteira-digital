@@ -79,7 +79,7 @@
                                 <input id="dinheiro" name="valor" type="number" step="0.01" min="0" placeholder="0.00" required />
                                 <script>
                                     $('#dinheiro').on('keyup', function () {
-                                        let val = parseInt($(this).val().replace(/\D/g, ''))/100
+                                        let val = (parseInt($(this).val().replace(/\D/g, ''))/100).toFixed(2)
                                         val = isNaN(val) ? 0 : val
                                         $(this).val(val)
                                     })
