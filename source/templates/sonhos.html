@@ -56,9 +56,18 @@
                 }
             </script>
             <div class="row1">
-                <h2>Poupança: <span style="color:rgb(107, 172, 107)">R$ {{poupanca}}</span></h2>
-                <h2>Valor a ser distribuido: <span style="color:rgb(233, 186, 99)">R$ {{aplicacaodisponivel}}</span>
-                </h2>
+                <h2>Poupança: <span style="color:rgb(107, 172, 107)" id="valorPoupanca"></span></h2>
+                <h2>Valor a ser distribuido: <span style="color:rgb(255, 132, 0)" id="valorDistribuir"></span></h2>
+                <script>
+                    var poupanca = document.getElementById('valorPoupanca');
+                    var distribuir = document.getElementById('valorDistribuir');
+
+                    var valorPoupanca = {{poupanca}};
+                    var valorDistribuir = {{aplicacaodisponivel}};
+
+                    poupanca.innerText = valorPoupanca.toLocaleString('pt-br', { style: 'currency', currency: 'BRL' });
+                    distribuir.innerText = valorDistribuir.toLocaleString('pt-br', { style: 'currency', currency: 'BRL' });
+                </script>
             </div>
             <div class="row2">
                 <h2>Adicionar Sonho:</h2>
@@ -141,11 +150,22 @@
                     </div>
                     <div class="linha">
                         <span>Meta:</span>
-                        <span>R$ {{cards[card].meta}}</h3>
+                        <span id="valorMeta_{{card}}"></span>
+                        <script>
+                            var meta = document.getElementById('valorMeta_{{card}}');
+                            var valor = {{cards[card].meta}};
+                            meta.innerText = valor.toLocaleString('pt-br', { style: 'currency', currency: 'BRL' });
+                        </script>
+
                     </div>
                     <div class="linha">
                         <span>Aplicado:</span>
-                        <span>R$ {{cards[card].aplicado}}</span>
+                        <span id="valorAplicado_{{card}}"></span>
+                        <script>
+                            var aplicado = document.getElementById("valorAplicado_{{card}}");
+                            var valor = {{cards[card].aplicado}};
+                            aplicado.innerText = valor.toLocaleString('pt-br', { style: 'currency', currency: 'BRL' });
+                        </script>
                     </div>
                     <p>{{cards[card].obs}}</p>
                     <div class="interativo">

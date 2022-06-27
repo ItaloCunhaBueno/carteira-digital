@@ -418,6 +418,11 @@ def deletaCategoria(categoria):
     if categoria in [None, "", " "]:
         flash(f"Erro ao remover a categoria '{categoria}' da lista.")
         return False
+
+    elif categoria == 'Poupança':
+        flash(f"Erro: não é possível remover a categoria '{categoria}', esta categoria é parte fundamental do aplicativo.")
+        return False
+    
     else:
         CURSOR.execute(f"DELETE FROM categorias WHERE categoria = '{categoria}'")
         DB.commit()
