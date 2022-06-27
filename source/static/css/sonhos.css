@@ -156,6 +156,7 @@ select:focus {
     right: 0;
     width: 30px;
     height: 30px;
+    margin: 0;
     background-color: rgb(255, 78, 78);
     border: none;
     border-radius: 6px;
@@ -171,16 +172,21 @@ select:focus {
 }
 
 .head button a {
-    vertical-align: middle;
-
+    position: absolute;
+    top: -2px;
+    right: -5px;
+    width: 30px;
+    height: 30px;
+    margin: 0;
 }
 
 .botoes {
-    text-align: left;
-    
+    position: relative;
+    display: flex;
+    flex-direction: row;
 }
 
-.btn {
+.botao {
     background-color: rgb(107, 172, 107);
     border: none;
     border-radius: 6px;
@@ -190,13 +196,16 @@ select:focus {
     height: 30px;
 }
 
-.btn a {
-    vertical-align: middle;
-}
-
-.btn:hover {
+.botao:hover {
     background-color: rgb(92, 150, 92);
     border: none;
     border-radius: 6px;
     cursor: pointer;
+}
+
+.botoes button a {
+    position: relative;
+    top: -12px;
+    left: -12px;
+
 }

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/sonhos_grafico.css')}}" />
+    <title>Document</title>
+</head>
+<script type="text/javascript" src="{{url_for('static', filename='js/jquery-3.6.0.min.js')}}"></script>
+<script type="text/javascript" src="{{url_for('static', filename='js/jscharting.js')}}"></script>
+<script type="text/javascript" src="{{url_for('static', filename='js/types.js')}}"></script>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Gráfico de evolução para o sonho '{{nome}}'</h1>
+        </div>
+        <div class="row1">
+            <div id="grafico">
+
+            </div>
+            <script>
+                var colors = ['rgb(107, 172, 107)'];
+                var valoresY = [
+                                {% for periodo in periodos %}
+                                '{{periodo}}',
+                                {% endfor %}
+                    ];
+                
+                var aplicacoes = {{valores}};
+                var aplicacoes = valoresY.map(function(e, i) {
+                    return [e, aplicacoes[i]];
+                });
+
+                var chart = JSC.chart('grafico', {
+                    debug: true,
+                    type: 'area spline',
+                    title_position: 'center',
+                    legend_visible: true,
+                    legend: {
+                        layout: 'vertical',
+                        position: 'inside top right',
+                        template: '%name %icon R%value'
+                    },
+                    yAxis: {
+                        formatString: 'c',
+                        scale_type: 'stacked',
+                        label_text: "Quantia (R$)",
+                        
+                    },
+                    xAxis: {
+                        crosshair_enabled: true,
+                        scale: {
+                            type: 'month'
+                        },
+                        label_text: "Mês",
+                        visible: true,
+                        scale_minorInterval: 1,
+                    },
+                    defaultSeries: {
+                        shape: {
+                            opacity: 0.6,
+                            /* Dynamic gradient that will work with any color series */
+                            fill: ['lightenMore', '#f1f1f1', 90]
+                        },
+                        defaultPoint_marker: {
+                            fill: 'white',
+                            type: 'none',
+                            outline: {
+                                width: 2
+                            }
+                        }
+                    },
+
+                    series: [{
+                            name: 'Aplicações',
+                            points: aplicacoes,
+                            color: colors[0]
+                        },
+                    ]
+                });
+            </script>
+        </div>
+    </div>
+</body>
+</html>
