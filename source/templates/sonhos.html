@@ -1,27 +1,147 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="shortcut icon" href="{{url_for('static', filename='favicon.ico')}}" type="image/x-icon">
-    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/sonhos.css')}}" />
-    <title>Poupança</title>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>Sonhos:</h1>
-        </div>
-        <div class="corpo">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="shortcut icon" href="{{url_for('static', filename='favicon.ico')}}" type="image/x-icon">
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+        <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/sonhos.css')}}" />
+        <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='js/jquery.toast.min.css')}}" />
+        <title>Poupança</title>
+    </head>
+
+
+    <script type="text/javascript" src="{{url_for('static', filename='js/jquery-3.6.0.min.js')}}"></script>
+    <script type="text/javascript" src="{{url_for('static', filename='js/jquery.toast.min.js')}}"></script>
+
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>Sonhos:</h1>
+            </div>
+            <script>
+                var message = "{{get_flashed_messages()[-1]}}";
+                if (message) {
+                    if (message.includes("Erro")) {
+                        $.toast({
+                            heading: "Erro",
+                            text: message,
+                            hideAfter: 3000,
+                            showHideTransition: "slide",
+                            icon: "error",
+                            position: "top-center",
+                            bgColor: "rgb(255, 174, 174)",
+                            textColor: "#2f3d48",
+                            loaderBg: "white",
+                            allowToastClose: true,
+                        });
+                    } else {
+                        $.toast({
+                            heading: "Sucesso",
+                            text: message,
+                            hideAfter: 3000,
+                            showHideTransition: "slide",
+                            icon: "success",
+                            position: "top-center",
+                            bgColor: "rgb(125, 162, 194)",
+                            textColor: "#2f3d48",
+                            loaderBg: "white",
+                            allowToastClose: true,
+                        });
+                    }
+                }
+            </script>
+            <div class="row1">
+                <h2>Poupança: <span style="color:rgb(107, 172, 107)">R$ {{poupanca}}</span></h2>
+                <h2>Valor a ser distribuido: <span style="color:rgb(233, 186, 99)">R$ {{ocioso}}</span></h2>
+            </div>
+            <div class="row2">
+                <h2>Adicionar Sonho:</h2>
+                <form action="/sonhos_add" method="post" id="sonhos_add">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Meta</th>
+                                <th>Descrição</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <input name="nome" type="text" placeholder="" />
+                                </td>
+                                <td>
+                                    <input id="dinheiro" name="meta" type="number" step="0.01" min="0"
+                                        placeholder="0.00" required />
+                                    <script>
+                                        $('#dinheiro').on('keyup', function () {
+                                            let val = (parseInt($(this).val().replace(/\D/g, '')) / 100).toFixed(2)
+                                            val = isNaN(val) ? 0 : val
+                                            $(this).val(val)
+                                        })
+                                    </script>
+                                </td>
+                                <td>
+                                    <input name="obs" type="text" placeholder="" />
+                                </td>
+                                <td>
+                                    <input type="submit" value="Adicionar" class="adicionar" />
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </form>
+            </div>
+            <div class="row3">
+                {% for card in cards %}
+                <div class="card">
+                    <div class="head">
+                        <h2>{{card}}</h2>
+                        <button><a class="material-icons">close</a></button>
+                    </div>
+                    <div class="linha">
+                        <span>Meta:</span>
+                        <span>R$ {{cards[card].meta}}</h3>
+                    </div>
+                    <div class="linha">
+                        <span>Aplicado:</span>
+                        <span>R$ {{cards[card].aplicado}}</span>
+                    </div>
+                    <p>{{cards[card].obs}}</p>
+                    <div class="interativo">
+                        <form>
+                            <input id="aplicacao" name="meta" type="number" step="0.01" min="0" placeholder="0.00"
+                                required />
+                            <script>
+                                $('#aplicacao').on('keyup', function () {
+                                    let val = (parseInt($(this).val().replace(/\D/g, '')) / 100).toFixed(2)
+                                    val = isNaN(val) ? 0 : val
+                                    $(this).val(val)
+                                })
+                            </script>
+                            <input type="submit" value="Aplicar" class="adicionar" />
+                        </form>
+                        <div class="botoes">
+                            <button class="btn editar"><a class="material-icons">edit</a></button>
+                            <button class="btn concluir"><a class="material-icons">check</a></button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
             <p>Somatoria da categira poupança em gasto (representanto a quantidade de dinheiro guardada na poupança)</p>
-            <p>Valor a ser distribuido (valor total da poupança mesmo o que ja foi distribuido para sonhos.)</p>
+            <p>Valor a ser distribuido (valor total da poupança menos o que ja foi distribuido para sonhos.)</p>
             <p>seção para criar um novo sonho com Nome, Meta em valor e Descrição</p>
             <p>seção com os cards (precisam ser editaveis em nome, meta e descrição)
-            precisam ter informação de total aplicado, botão para adicionar aplicação, botão para concluir (onde o valor será retirado do saldo total da poupança)
-            e um botão cancelar (onde o valor será re adicionado no "valor a ser distribuido)</p>
+                precisam ter informação de total aplicado, botão para adicionar aplicação, botão para concluir (onde o
+                valor será retirado do saldo total da poupança)
+                e um botão cancelar (onde o valor será re adicionado no "valor a ser distribuido)</p>
             <p>Clicando no card abre uma tela com o grafico de evolução das aplicações</p>
         </div>
-    </div>
-</body>
+        </div>
+    </body>
+
 </html>

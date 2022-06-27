@@ -30,10 +30,16 @@ def cria_banco(banco):
 	                    "categoria"	TEXT NOT NULL UNIQUE,
 	                    PRIMARY KEY("id" AUTOINCREMENT))''')
         
+        cursor.execute("INSERT INTO categorias (categoria) VALUES ('Poupança')")
+        
         cursor.execute('''CREATE TABLE "modais" (
                         "id"	INTEGER NOT NULL UNIQUE,
                         "modal"	TEXT NOT NULL UNIQUE,
                         PRIMARY KEY("id" AUTOINCREMENT))''')
+        
+        cursor.execute("INSERT INTO modais (modal) VALUES ('Dinheiro')")
+        cursor.execute("INSERT INTO modais (modal) VALUES ('Débito')")
+        cursor.execute("INSERT INTO modais (modal) VALUES ('Crédito')")
 
         cursor.execute('''CREATE TABLE "gastos" (
                         "id"	INTEGER NOT NULL UNIQUE,
@@ -51,6 +57,17 @@ def cria_banco(banco):
                         "data"	TEXT NOT NULL,
                         "obs"	TEXT,
                         PRIMARY KEY("id"))''')
+        
+        cursor.execute('''CREATE TABLE "sonhos" (
+                        "id"	INTEGER NOT NULL UNIQUE,
+                        "nome"	TEXT NOT NULL UNIQUE,
+                        "meta"	REAL NOT NULL,
+                        "data"	TEXT NOT NULL,
+                        "obs"	TEXT,
+                        "status"	TEXT NOT NULL,
+                        "card" INTEGER NOT NULL,
+                        PRIMARY KEY("id"))''')
+        
         conn.commit()
         
 
@@ -260,6 +277,31 @@ def querySaldo():
         resultado = f"-R$ {round(resultado, 2)}"
     
     return resultado
+
+
+def queryPoupaca():
+    '''
+    RETORNA O SALDO TOTAL DA POUPANÇA
+    '''
+    
+    CURSOR.execute("SELECT total(valor) FROM gastos WHERE categoria = 'Poupança'")
+    try:
+        poupanca = CURSOR.fetchall()[0][0]
+    except ValueError:
+        poupanca = 0
+    
+    return poupanca
+
+
+def queryPoupancaCards():
+    '''
+    RETORNA OS CARDS PARA A PAGINA DE SONHOS
+    '''
+    
+    CURSOR.execute("SELECT nome, meta, data, obs, status FROM sonhos WHERE card = 1")
+    cards = {c[0]:{'meta': c[1], "data": c[2], "obs": c[3], "status": c[4]} for c in CURSOR.fetchall()}
+    
+    return cards
     
     
 def adicionaCategoria(categoria):
@@ -476,6 +518,35 @@ def exporta_renda():
     return resposta
 
 
+def adiciona_sonho(nome, meta, data, obs, status, card):
+    '''
+    ADEQUA E ADICIONA UM SONHO NOVO NA TABELA SONHOS
+    '''
+    NOME = nome
+    META = meta
+    DATA = data
+    OBS = obs
+    STATUS = status
+    CARD = card
+    try:
+        META = float(META)
+        if OBS in [None, '', ' ']:
+            OBS = ''
+
+        DATA = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        CURSOR.execute(f"INSERT INTO sonhos (nome, meta, data, obs, status, card) VALUES (?, ?, ?, ?, ?, ?)", (NOME, META, DATA, OBS, STATUS, CARD,))
+        DB.commit()
+        flash(f"Novo sonho adicionado com sucesso.")
+        return True
+
+    except Exception as e:
+        print(e)
+        flash(f"Erro ao inserir novo sonho: '{e}'")
+        return False
+    
+
+
 @APP.route("/")
 def index():
     '''
@@ -643,13 +714,33 @@ def save_renda_edit():
     
     return redirect(url_for("renda"))
 
-@APP.route("/sonhos")
+@APP.route("/sonhos", methods=['GET', 'POST'])
 def sonhos():
     '''
-    RETORNA A PAGINA POUPANCA COM TODOS OS DADOS NECESSARIOS
+    RETORNA A PAGINA SONHOS COM TODOS OS DADOS NECESSARIOS
     '''
+    
+    poupanca = queryPoupaca()
+    cards = queryPoupancaCards()
 
-    return render_template("sonhos.html")
+    return render_template("sonhos.html", poupanca=poupanca, cards=cards)
+
+
+@APP.route("/sonhos_add", methods=['GET', 'POST'])
+def sonhos_add():
+    '''
+    PROCESSA O FORMULARIO DE ADICAO DE SONHO E ATUALIZA A PAGINA SONHOS
+    '''
+    NOME = request.form["nome"]
+    META = request.form["meta"]
+    DATA = None
+    OBS = request.form["obs"]
+    STATUS = 'ABERTO'
+    CARD = 1
+    
+    adiciona_sonho(NOME, META, DATA, OBS, STATUS, CARD)
+    
+    return redirect(url_for("sonhos"))
 
 
 @APP.route("/config", methods=['GET', 'POST'])
