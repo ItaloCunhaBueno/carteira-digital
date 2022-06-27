@@ -1,6 +1,5 @@
 import sqlite3
 from pathlib import Path
-from colorama import Cursor
 from flask import Flask, render_template, g, request, redirect, url_for, flash, make_response
 from datetime import datetime
 from io import StringIO
@@ -140,16 +139,20 @@ def queryGastosMesAtual():
 
 def queryGastosPorDiaNoMes():
     """
-    FAZ A QUERY E RETORNA A SOMATORIA DE TODOS OS GASTOS DO MES ATUAL SEPARADO POR DIA
+    FAZ A QUERY E RETORNA O CUMULATIVO DE TODOS OS GASTOS DO MES ATUAL AUMENTANDO POR DIA
     """
     ANO = str(datetime.now().year)
     MES = str(datetime.now().month).zfill(2)
     CURSOR.execute(f"SELECT strftime('%d', data) AS dia, round(total(valor),2) AS soma FROM gastos WHERE strftime('%Y-%m', data) = '{ANO}-{MES}'GROUP BY dia ORDER BY dia")
-    gastosdia = CURSOR.fetchall()
-    gastosdia = {int(dia[0]): dia[1] for dia in gastosdia}
+    gastos = CURSOR.fetchall()
+    gastosdia = {int(dia[0]): dia[1] for dia in gastos}
     dados = [0 for x in range(1, 32)]
-    for dia in gastosdia:
-        dados[dia - 1] = gastosdia[dia]
+    dias = [x for x in range(1, 32)]
+    cumulativo = 0
+    for dia in dias:
+        if dia in gastosdia:
+            cumulativo += gastosdia[dia]
+        dados[dia - 1] = cumulativo
     return dados
 
 
@@ -232,7 +235,7 @@ def queryRendaMesAtual():
 
 def queryRendaPorDiaNoMes():
     """
-    FAZ A QUERY E RETORNA A SOMATORIA DE TODOS AS RENDAS DO MES ATUAL SEPARADO POR DIA
+    FAZ A QUERY E RETORNA O CUMULATIVO DE TODOS AS RENDAS DO MES ATUAL SEPARADO POR DIA
     """
     ANO = str(datetime.now().year)
     MES = str(datetime.now().month).zfill(2)
@@ -240,8 +243,12 @@ def queryRendaPorDiaNoMes():
     rendadia = CURSOR.fetchall()
     rendadia = {int(dia[0]): dia[1] for dia in rendadia}
     dados = [0 for x in range(1, 32)]
-    for dia in rendadia:
-        dados[dia - 1] = rendadia[dia]
+    dias = [x for x in range(1, 32)]
+    cumulativo = 0
+    for dia in dias:
+        if dia in dados:
+            cumulativo += rendadia[dia]
+        dados[dia - 1] = cumulativo
     return dados
 
 
@@ -326,6 +333,25 @@ def queryPoupaca():
                 pass
 
     return poupanca - valorconcluido
+
+
+def queryPoupancaCumulativaMes():
+    """
+    FAZ A QUERY E RETORNA O CUMULATIVO DE TODOS AS APLICACOES DO MES ATUAL SEPARADO POR DIA
+    """
+    ANO = str(datetime.now().year)
+    MES = str(datetime.now().month).zfill(2)
+    CURSOR.execute(f"SELECT strftime('%d', data) AS dia, round(total(valor),2) AS soma FROM gastos WHERE strftime('%Y-%m', data) = '{ANO}-{MES}' and categoria = 'Poupança' GROUP BY dia ORDER BY dia")
+    poupancadia = CURSOR.fetchall()
+    poupancadia = {int(dia[0]): dia[1] for dia in poupancadia}
+    dados = [0 for x in range(1, 32)]
+    dias = [y for y in range(1, 32)]
+    cumulativo = 0
+    for dia in dias:
+        if dia in poupancadia:
+            cumulativo += poupancadia[dia]
+        dados[dia - 1] = cumulativo
+    return dados
 
 
 def queryAplicacoes():
@@ -782,13 +808,14 @@ def resumo():
     """
     gastostotal = queryGastos()
     gastostotalmes = queryGastosMesAtual()
-    gastodia = queryGastosPorDiaNoMes()
+    gastocumulativonomes = queryGastosPorDiaNoMes()
     rendatotal = queryRenda()
     rendatotalmes = queryRendaMesAtual()
-    rendadia = queryRendaPorDiaNoMes()
+    rendacumulativanomes = queryRendaPorDiaNoMes()
+    aplicacaocumulativames = queryPoupancaCumulativaMes()
     saldo = querySaldo()
 
-    return render_template("resumo.html", gastos=gastostotal, renda=rendatotal, gastomes=gastostotalmes, rendames=rendatotalmes, gastodia=gastodia, rendadia=rendadia, saldo=saldo)
+    return render_template("resumo.html", gastos=gastostotal, renda=rendatotal, gastomes=gastostotalmes, rendames=rendatotalmes, gastocumulativonomes=gastocumulativonomes, rendacumulativanomes=rendacumulativanomes, aplicacaocumulativames=aplicacaocumulativames, saldo=saldo)
 
 
 @APP.route("/gastos", methods=["GET", "POST"])

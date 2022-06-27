@@ -14,14 +14,8 @@ MES = str(datetime.now().month).zfill(2)
 HOMEDIR = Path(__file__).parent.absolute()
 db = sqlite3.connect(f"{HOMEDIR}/banco/carteira.db")
 cursor = db.cursor()
-nome = 'Roupas Novas'
-cursor.execute(f"SELECT total(valor), strftime('%m/%Y', data) as periodo FROM aplicacoes WHERE nome = '{nome}' GROUP BY periodo ORDER BY periodo")
+cursor.execute(f"SELECT strftime('%d', data) AS dia, round(total(valor),2) AS soma FROM gastos WHERE strftime('%Y-%m', data) = '{ANO}-{MES}' and categoria = 'Poupança' GROUP BY dia ORDER BY dia")
 
-valores = []
-periodos = []
 for row in cursor.fetchall():
-    valores.append(row[0])
-    periodos.append(row[1])
+    print(row)
 
-print(valores)
-print(periodos)

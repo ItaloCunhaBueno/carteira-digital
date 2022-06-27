@@ -131,6 +131,11 @@ select:focus {
     justify-content: space-between
 }
 
+.card form input {
+    position: relative;
+    width: 120%;
+}
+
 .head {
     position: relative;
     margin-bottom: 20px;

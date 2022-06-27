@@ -126,17 +126,18 @@
             <div id="chartDiv"></div>
 
             <script>
-                var colors = ['rgb(125, 162, 194)', 'rgb(201, 56, 56)'];
+                var colors = ['rgb(125, 162, 194)', 'rgb(201, 56, 56)', 'rgb(255, 132, 0)'];
                 var colorText = function(txt, colorIndex) {
-                    return ('<span style="color:' + colors[colorIndex] + '"><b>' + txt + '</b></span>');
+                    return ('<span style="color:' + colors[colorIndex] + '"><b>' + txt + '</b></span>')
                 };
 
-                var titleText = colorText('Renda', 0) + ' e ' + colorText('Gastos', 1) + ' no mês';
+                var titleText = colorText('Renda', 0) + ', ' + colorText('Gastos', 1) + ' e ' + colorText('Aplicações', 2) + ' no mês';
                 var dias = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27,
                     28, 29, 30, 31
                 ]
-                var renda = {{rendadia}};
-                var gasto = {{gastodia}};
+                var renda = {{rendacumulativanomes}};
+                var gasto = {{gastocumulativonomes}};
+                var aplicacao = {{aplicacaocumulativames}};
 
                 var renda = dias.map(function(e, i) {
                     return [e, renda[i]];
@@ -146,20 +147,23 @@
                     return [e, gasto[i]];
                 });
 
+                var aplicacao = dias.map(function(e, i) {
+                    return [e, aplicacao[i]];
+                });
+
                 var chart = JSC.chart('chartDiv', {
                     debug: true,
-                    type: 'area spline',
+                    type: 'Area Spline',
                     title_label_text: titleText,
                     title_position: 'center',
                     legend_visible: true,
                     legend: {
                         layout: 'vertical',
                         position: 'inside top right',
-                        template: '%name %icon R%value'
+                        template: '%name %icon'
                     },
                     yAxis: {
                         formatString: 'c',
-                        scale_type: 'stacked',
                         label_text: "Quantia (R$)",
                     },
                     xAxis: {
@@ -195,6 +199,11 @@
                             name: 'Gastos',
                             points: gasto,
                             color: colors[1]
+                        },
+                        {
+                            name: 'Aplicações',
+                            points: aplicacao,
+                            color: colors[2]
                         }
                     ]
                 });
