@@ -114,7 +114,8 @@
                         <h2 id="cardText_{{card}}">{{card}}</h2>
                         <script>
                             var TITLE = document.getElementById("cardText_{{card}}");
-                            var text = '{{card}}'.replace("_", " ");
+                            var text = '{{card}}'.replace(/\_/g, ' ');
+                            console.log(text);
                             TITLE.innerHTML = text;
                         </script>
                         <form action="/sonhos_del" method="post" id="sonhos_del_{{card}}">
@@ -125,7 +126,7 @@
                         <script>
                             $("#sonhos_del_{{card}}").on("submit", function () {
                                 var $this = $(this); // reference to the current scope
-                                var nome = '{{card}}'.replace("_", " ");
+                                var nome = '{{card}}'.replace(/\_/g, ' ');
 
                                 $.confirm({
                                     theme: 'material',
@@ -200,7 +201,7 @@
                             <script>
                                 $("#conclui_sonhos_{{card}}").on("submit", function () {
                                     var $this = $(this); // reference to the current scope
-                                    var nome = '{{card}}'.replace("_", " ");
+                                    var nome = '{{card}}'.replace(/\_/g, ' ');
 
                                     $.confirm({
                                         theme: 'material',
