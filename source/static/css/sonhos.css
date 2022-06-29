@@ -49,6 +49,7 @@ body {
 }
 
 form * {
+    width: inherit;
     padding: 5px 5px;
     font-size: 16px;
     margin: 5px;
@@ -58,7 +59,6 @@ input {
     border: none;
     border-bottom: 2px solid;
     border-color: rgb(107, 172, 107);
-
 }
 
 input:hover {
@@ -112,16 +112,16 @@ select:focus {
 }
 
 .card {
-    min-width: 250px;
-    max-width: 20vw;
+    display: flex;
+    flex-direction: column;
+    /* justify-content: space-between; */
+    /* min-width: 250px;
+    max-width: 20vw; */
     border-radius: 12px;
     box-shadow: 0px 0px 10px rgb(0, 0, 0, 0.2);
     padding: 10px 10px;
     margin: 0px 10px 10px 0px;
     background-color: white;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
 }
 
 .card form {
@@ -129,11 +129,6 @@ select:focus {
     flex-direction: row;
     margin: auto;
     justify-content: space-between;
-}
-
-.card form input {
-    position: relative;
-    width: auto;
 }
 
 .head {
@@ -185,6 +180,10 @@ select:focus {
     margin: 0;
 }
 
+.card form input {
+    max-width: 250px;
+}
+
 .botoes {
     position: relative;
     display: flex;
@@ -211,6 +210,6 @@ select:focus {
 .botoes button a {
     position: relative;
     top: -12px;
-    left: -12px;
+    left: -15px;
 
 }

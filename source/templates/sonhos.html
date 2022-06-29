@@ -172,10 +172,8 @@
                     <div class="interativo">
                         <form action="/aplica_sonhos" method="post" id="aplica_sonhos_{{card}}">
                             <input name="nome" type="text" value='{{card}}' hidden />
-                            <input id='{{card}}' name="valor" type="number" step="0.01" min="0" placeholder="0.00"
-                                required />
+                            <input id='{{card}}' name="valor" type="number" step="0.01" min="0" placeholder="0.00" required />
                             <script>
-
                                 $('#{{card}}').on('keyup', function () {
                                     let val = (parseInt($(this).val().replace(/\D/g, '')) / 100).toFixed(2)
                                     val = isNaN(val) ? 0 : val
