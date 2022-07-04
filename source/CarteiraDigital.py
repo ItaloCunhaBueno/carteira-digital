@@ -297,13 +297,11 @@ def querySaldo():
     CURSOR.execute("SELECT total(valor) FROM gastos WHERE data < date('now')")
     try:
         gastos = CURSOR.fetchall()[0][0]
-        print(gastos)
     except ValueError:
         gastos = 0
     CURSOR.execute("SELECT total(valor) FROM renda WHERE data < date('now')")
     try:
         renda = CURSOR.fetchall()[0][0]
-        print(renda)
     except ValueError:
         renda = 0
 
