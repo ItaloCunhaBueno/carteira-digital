@@ -2,6 +2,7 @@ import sqlite3
 from pathlib import Path
 from flask import Flask, render_template, g, request, redirect, url_for, flash, make_response
 from datetime import datetime
+from dateutil.relativedelta import relativedelta
 from io import StringIO
 from os import mkdir
 import csv
@@ -85,6 +86,15 @@ def cria_banco(banco):
                         PRIMARY KEY("id"))"""
         )
 
+        cursor.execute(
+            """CREATE TABLE "ultimaedicao" (
+                        "id"	INTEGER NOT NULL UNIQUE,
+                        "data"	TEXT NOT NULL,
+                        PRIMARY KEY("id"))"""
+        )
+
+        cursor.execute("INSERT INTO ultimaedicao (data) VALUES (?)", (datetime.now().strftime("%d/%m/%Y %H:%M:%S"),))
+
         conn.commit()
 
 
@@ -128,7 +138,7 @@ def queryGastosMesAtual():
     """
     ANO = str(datetime.now().year)
     MES = str(datetime.now().month).zfill(2)
-    CURSOR.execute(f"SELECT strftime('%Y-%m', data) AS mes, total(valor) AS soma FROM gastos WHERE mes = '{ANO}-{MES}' GROUP BY mes ORDER BY mes")
+    CURSOR.execute(f"SELECT strftime('%Y-%m', data) AS mes, total(valor) AS soma FROM gastos WHERE NOT categoria = 'Poupança' AND mes = '{ANO}-{MES}' GROUP BY mes ORDER BY mes")
     dados = CURSOR.fetchall()
     if dados:
         dados = dados[0][1]
@@ -143,7 +153,9 @@ def queryGastosPorDiaNoMes():
     """
     ANO = str(datetime.now().year)
     MES = str(datetime.now().month).zfill(2)
-    CURSOR.execute(f"SELECT strftime('%d', data) AS dia, round(total(valor),2) AS soma FROM gastos WHERE strftime('%Y-%m', data) = '{ANO}-{MES}'GROUP BY dia ORDER BY dia")
+    CURSOR.execute(
+        f"SELECT strftime('%d', data) AS dia, round(total(valor),2) AS soma FROM gastos WHERE NOT categoria = 'Poupança' AND strftime('%Y-%m', data) = '{ANO}-{MES}' GROUP BY dia ORDER BY dia"
+    )
     gastos = CURSOR.fetchall()
     gastosdia = {int(dia[0]): dia[1] for dia in gastos}
     dados = [0 for x in range(1, 32)]
@@ -243,10 +255,10 @@ def queryRendaPorDiaNoMes():
     rendadia = CURSOR.fetchall()
     rendadia = {int(dia[0]): dia[1] for dia in rendadia}
     dados = [0 for x in range(1, 32)]
-    dias = [x for x in range(1, 32)]
+    dias = [y for y in range(1, 32)]
     cumulativo = 0
     for dia in dias:
-        if dia in dados:
+        if dia in rendadia:
             cumulativo += rendadia[dia]
         dados[dia - 1] = cumulativo
     return dados
@@ -282,22 +294,24 @@ def querySaldo():
     """
     RETORNA O SALDO EQUIVALENTE A SOMATORIA DE RENDAS MENOS A SOMATORIA DE GASTOS
     """
-    CURSOR.execute("SELECT total(valor) FROM gastos")
+    CURSOR.execute("SELECT total(valor) FROM gastos WHERE data < date('now')")
     try:
         gastos = CURSOR.fetchall()[0][0]
+        print(gastos)
     except ValueError:
         gastos = 0
-    CURSOR.execute("SELECT total(valor) FROM renda")
+    CURSOR.execute("SELECT total(valor) FROM renda WHERE data < date('now')")
     try:
         renda = CURSOR.fetchall()[0][0]
+        print(renda)
     except ValueError:
         renda = 0
 
     resultado = renda - gastos
     if resultado >= 0:
-        resultado = f"+R$ {round(resultado, 2)}"
+        resultado = f"+R$ {round(abs(resultado), 2)}"
     else:
-        resultado = f"-R$ {round(resultado, 2)}"
+        resultado = f"-R$ {round(abs(resultado), 2)}"
 
     return resultado
 
@@ -389,27 +403,25 @@ def queryAplicacoesSonho(nome):
     periodos = []
     acumulado = 0
     for row in CURSOR.fetchall():
-        acumulado +=row[0]
+        acumulado += row[0]
         valores.append(acumulado)
         periodos.append(row[1])
-        
+
     return (valores, periodos)
-    
-    
+
 
 def queryPoupancaCards():
     """
     RETORNA OS CARDS PARA A PAGINA DE SONHOS
     """
 
-    CURSOR.execute("SELECT nome, meta, obs, status FROM sonhos WHERE status = 'ABERTO'")
+    CURSOR.execute("SELECT nome, meta, obs, status FROM sonhos WHERE NOT status = 'EXCLUIDO'")
     cards = {c[0].replace(" ", "_"): {"meta": c[1], "obs": c[2], "status": c[3]} for c in CURSOR.fetchall()}
     for c in cards:
         nome = c.replace("_", " ")
         CURSOR.execute(f"SELECT total(valor) FROM aplicacoes WHERE nome = '{nome}'")
         valor = CURSOR.fetchall()[0][0] if c[0] else 0
         cards[c]["aplicado"] = valor
-
     return cards
 
 
@@ -423,6 +435,14 @@ def queryUmSonho(nome):
     return infos
 
 
+def queryUltimaEdicao():
+    """
+    RETORNA DATA DA ULTIMA ALTERACAO FEITA NO BANCO
+    """
+    TEXTO = CURSOR.execute("SELECT data FROM ultimaedicao").fetchone()[0]
+    return TEXTO
+
+
 def adicionaCategoria(categoria):
     """
     ADICIONA A CATEGORIA NA TABELA CATEGORIAS
@@ -432,6 +452,7 @@ def adicionaCategoria(categoria):
         return False
     else:
         CURSOR.execute(f"INSERT INTO categorias (categoria) VALUES (?)", (categoria,))
+        CURSOR.execute("UPDATE ultimaedicao SET data = ? WHERE id = 1", (datetime.now().strftime("%d/%m/%Y %H:%M:%S"),))
         DB.commit()
         flash(f"Categoria '{categoria}' adicionada com sucesso.")
         return True
@@ -445,12 +466,13 @@ def deletaCategoria(categoria):
         flash(f"Erro ao remover a categoria '{categoria}' da lista.")
         return False
 
-    elif categoria == 'Poupança':
+    elif categoria == "Poupança":
         flash(f"Erro: não é possível remover a categoria '{categoria}', esta categoria é parte fundamental do aplicativo.")
         return False
-    
+
     else:
         CURSOR.execute(f"DELETE FROM categorias WHERE categoria = '{categoria}'")
+        CURSOR.execute("UPDATE ultimaedicao SET data = ? WHERE id = 1", (datetime.now().strftime("%d/%m/%Y %H:%M:%S"),))
         DB.commit()
         flash(f"Categoria '{categoria}' removida com sucesso.")
         return True
@@ -465,6 +487,7 @@ def adicionaModal(modal):
         return False
     else:
         CURSOR.execute(f"INSERT INTO modais (modal) VALUES (?)", (modal,))
+        CURSOR.execute("UPDATE ultimaedicao SET data = ? WHERE id = 1", (datetime.now().strftime("%d/%m/%Y %H:%M:%S"),))
         DB.commit()
         flash(f"Modal '{modal}' adicionado com sucesso.")
         return True
@@ -479,15 +502,17 @@ def deletaModal(modal):
         return False
     else:
         CURSOR.execute(f"DELETE FROM modais WHERE modal = '{modal}'")
+        CURSOR.execute("UPDATE ultimaedicao SET data = ? WHERE id = 1", (datetime.now().strftime("%d/%m/%Y %H:%M:%S"),))
         DB.commit()
         flash(f"Modal '{modal}' removido com sucesso.")
         return True
 
 
-def adicionaGasto(valor, categoria, modal, data, obs):
+def adicionaGasto(parcelas, valor, categoria, modal, data, obs):
     """
     ADEQUA E ADICIONA UM GASTO NOVO NA TABELA GASTOS
     """
+    PARCELAS = int(parcelas)
     VALOR = valor
     CATEGORIA = categoria
     MODAL = modal
@@ -495,24 +520,58 @@ def adicionaGasto(valor, categoria, modal, data, obs):
     OBS = obs
     try:
         VALOR = float(valor)
-        if OBS in [None, "", " "]:
-            OBS = ""
 
-        HORA = datetime.now().strftime("%H:%M:%S")
-        DATA = f"{DATA} {HORA}"
+        if PARCELAS == 1:
 
-        CURSOR.execute(
-            f"INSERT INTO gastos (valor, categoria, modal, data, obs) VALUES (?, ?, ?, ?, ?)",
-            (
-                VALOR,
-                CATEGORIA,
-                MODAL,
-                DATA,
-                OBS,
-            ),
-        )
-        DB.commit()
-        flash(f"Novo gasto inserido na tabela com sucesso.")
+            if OBS in [None, "", " "]:
+                OBS = ""
+
+            HORA = datetime.now().strftime("%H:%M:%S")
+            DATA = f"{DATA} {HORA}"
+
+            CURSOR.execute(
+                f"INSERT INTO gastos (valor, categoria, modal, data, obs) VALUES (?, ?, ?, ?, ?)",
+                (
+                    VALOR,
+                    CATEGORIA,
+                    MODAL,
+                    DATA,
+                    OBS,
+                ),
+            )
+
+            CURSOR.execute("UPDATE ultimaedicao SET data = ? WHERE id = 1", (datetime.now().strftime("%d/%m/%Y %H:%M:%S"),))
+            flash(f"Novo gasto inserido na tabela com sucesso.")
+            DB.commit()
+
+        else:
+            for i in range(PARCELAS):
+                HORA = datetime.now().strftime("%H:%M:%S")
+                NOVA_DATA = datetime.strptime(DATA, "%Y-%m-%d") + relativedelta(months=i)
+                NOVA_DATA = NOVA_DATA.strftime("%Y-%m-%d")
+                NOVA_DATA = f"{NOVA_DATA} {HORA}"
+
+                if OBS in [None, "", " "]:
+                    NOVAOBS = f"PARCELA {i+1}/{PARCELAS}"
+                else:
+                    NOVAOBS = f"{OBS} PARCELA {i+1}/{PARCELAS}"
+
+                CURSOR.execute(
+                    f"INSERT INTO gastos (valor, categoria, modal, data, obs) VALUES (?, ?, ?, ?, ?)",
+                    (
+                        VALOR,
+                        CATEGORIA,
+                        MODAL,
+                        NOVA_DATA,
+                        NOVAOBS,
+                    ),
+                )
+
+                CURSOR.execute("UPDATE ultimaedicao SET data = ? WHERE id = 1", (datetime.now().strftime("%d/%m/%Y %H:%M:%S"),))
+
+            flash(f"{PARCELAS} parcelas inseridas na tabela com sucesso.")
+            DB.commit()
+
         return True
 
     except Exception as e:
@@ -528,6 +587,7 @@ def deletaGasto(id):
     ID = int(id)
     try:
         CURSOR.execute(f"DELETE FROM gastos WHERE id = {ID}")
+        CURSOR.execute("UPDATE ultimaedicao SET data = ? WHERE id = 1", (datetime.now().strftime("%d/%m/%Y %H:%M:%S"),))
         DB.commit()
         flash(f"Linha {ID} deletada com sucesso.")
         return True
@@ -546,6 +606,7 @@ def editaGasto(id, valor, categoria, modal, data, obs):
         HORA = datetime.now().strftime("%H:%M:%S")
         DATA = f"{data} {HORA}"
         CURSOR.execute(f"UPDATE gastos SET valor = {valor}, categoria = '{categoria}', modal = '{modal}', data = '{DATA}', obs = '{obs}' WHERE id = {id}")
+        CURSOR.execute("UPDATE ultimaedicao SET data = ? WHERE id = 1", (datetime.now().strftime("%d/%m/%Y %H:%M:%S"),))
         DB.commit()
         flash(f"Gasto editado com sucesso.")
         return True
@@ -581,6 +642,9 @@ def adicionaRenda(valor, categoria, data, obs):
                 OBS,
             ),
         )
+
+        CURSOR.execute("UPDATE ultimaedicao SET data = ? WHERE id = 1", (datetime.now().strftime("%d/%m/%Y %H:%M:%S"),))
+
         DB.commit()
         flash(f"Nova renda inserida na tabela com sucesso.")
         return True
@@ -598,6 +662,7 @@ def deletaRenda(id):
     ID = int(id)
     try:
         CURSOR.execute(f"DELETE FROM renda WHERE id = {ID}")
+        CURSOR.execute("UPDATE ultimaedicao SET data = ? WHERE id = 1", (datetime.now().strftime("%d/%m/%Y %H:%M:%S"),))
         DB.commit()
         flash(f"Linha {ID} deletada com sucesso.")
         return True
@@ -617,6 +682,7 @@ def editaRenda(id, valor, categoria, data, obs):
         HORA = datetime.now().strftime("%H:%M:%S")
         DATA = f"{data} {HORA}"
         CURSOR.execute(f"UPDATE renda SET valor = {valor}, categoria = '{categoria}', data = '{DATA}', obs = '{obs}' WHERE id = {id}")
+        CURSOR.execute("UPDATE ultimaedicao SET data = ? WHERE id = 1", (datetime.now().strftime("%d/%m/%Y %H:%M:%S"),))
         DB.commit()
         flash(f"Renda editada com sucesso.")
         return True
@@ -679,6 +745,7 @@ def adiciona_sonho(nome, meta, obs, status):
                 STATUS,
             ),
         )
+        CURSOR.execute("UPDATE ultimaedicao SET data = ? WHERE id = 1", (datetime.now().strftime("%d/%m/%Y %H:%M:%S"),))
         DB.commit()
         flash(f"Novo sonho adicionado com sucesso.")
         return True
@@ -711,6 +778,7 @@ def aplica_sonho(nome, valor):
                     DATA,
                 ),
             )
+            CURSOR.execute("UPDATE ultimaedicao SET data = ? WHERE id = 1", (datetime.now().strftime("%d/%m/%Y %H:%M:%S"),))
             DB.commit()
             flash(f"R${VALOR} aplicado a {NOME} com sucesso.")
             return True
@@ -730,6 +798,7 @@ def exclui_sonho(nome):
 
     try:
         CURSOR.execute(f"UPDATE sonhos SET status = 'EXCLUIDO' WHERE nome = '{NOME}'")
+        CURSOR.execute("UPDATE ultimaedicao SET data = ? WHERE id = 1", (datetime.now().strftime("%d/%m/%Y %H:%M:%S"),))
         DB.commit()
         flash(f"{NOME} excluído com sucesso.")
         return True
@@ -749,6 +818,7 @@ def conclui_sonho(nome):
 
     try:
         CURSOR.execute(f"UPDATE sonhos SET status = 'CONCLUIDO' WHERE nome = '{NOME}'")
+        CURSOR.execute("UPDATE ultimaedicao SET data = ? WHERE id = 1", (datetime.now().strftime("%d/%m/%Y %H:%M:%S"),))
         DB.commit()
         flash(f"{NOME} concluído com sucesso.")
         return True
@@ -776,6 +846,7 @@ def editaSonho(id, nome, meta, obs):
     try:
         CURSOR.execute(f"UPDATE sonhos SET nome = '{NOME_NOVO}', meta = {META_NOVA}, obs = '{OBS_NOVA}' WHERE id = '{ID}'")
         CURSOR.execute(f"UPDATE aplicacoes SET nome = '{NOME_NOVO}' WHERE nome = '{NOME_ANTIGO}'")
+        CURSOR.execute("UPDATE ultimaedicao SET data = ? WHERE id = 1", (datetime.now().strftime("%d/%m/%Y %H:%M:%S"),))
         DB.commit()
         flash(f"Edição concluída com sucesso.")
 
@@ -814,8 +885,20 @@ def resumo():
     rendacumulativanomes = queryRendaPorDiaNoMes()
     aplicacaocumulativames = queryPoupancaCumulativaMes()
     saldo = querySaldo()
+    ultimaedicao = queryUltimaEdicao()
 
-    return render_template("resumo.html", gastos=gastostotal, renda=rendatotal, gastomes=gastostotalmes, rendames=rendatotalmes, gastocumulativonomes=gastocumulativonomes, rendacumulativanomes=rendacumulativanomes, aplicacaocumulativames=aplicacaocumulativames, saldo=saldo)
+    return render_template(
+        "resumo.html",
+        gastos=gastostotal,
+        renda=rendatotal,
+        gastomes=gastostotalmes,
+        rendames=rendatotalmes,
+        gastocumulativonomes=gastocumulativonomes,
+        rendacumulativanomes=rendacumulativanomes,
+        aplicacaocumulativames=aplicacaocumulativames,
+        saldo=saldo,
+        ultimaedicao=ultimaedicao,
+    )
 
 
 @APP.route("/gastos", methods=["GET", "POST"])
@@ -837,12 +920,13 @@ def gastos_add():
     """
     PROCESSA O FORMULARIO DE ADICAO DE GASTO E ATUALIZA A PAGINA GASTOS
     """
+    parcelas = request.form["parcelas"]
     valor = request.form["valor"]
     categoria = request.form["categoria"]
     modal = request.form["modal"]
     data = request.form["data"]
     obs = request.form["obs"]
-    adicionaGasto(valor, categoria, modal, data, obs)
+    adicionaGasto(parcelas, valor, categoria, modal, data, obs)
 
     return redirect(url_for("gastos"))
 
