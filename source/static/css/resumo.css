@@ -145,3 +145,12 @@ body {
   font-size: 32px;
   color: #2f3d48;
 }
+
+#MesGrafico {
+  vertical-align: middle;
+  border: none;
+  border-bottom: 2px solid;
+  border-color: black;
+  background-color: white;
+  font-size-adjust: ex-height 1;
+}

@@ -14,6 +14,7 @@
 </head>
 
 <script type="text/javascript" src="{{url_for('static', filename='js/jscharting.js')}}"></script>
+<script type="text/javascript" src="{{url_for('static', filename='js/modules/toolbar.js')}}"></script>
 <script type="text/javascript" src="{{url_for('static', filename='js/types.js')}}"></script>
 <script type="text/javascript" src="{{url_for('static', filename='js/jquery-3.6.0.min.js')}}"></script>
 <script type="text/javascript" src="{{url_for('static', filename='js/jquery.dataTables.js')}}" charset="utf8" ></script>
@@ -121,90 +122,99 @@
             </h1>
         </div>
         <div class="row3">
-            <h1 id="TituloEvolucao">
-                <a class="material-icons">timeline</a> Evolução no mês:
-            </h1>
+            <h2 id="TituloEvolucao">
+                <a class="material-icons">timeline</a> Evolução:
+            </h2>
             <div id="chartDiv"></div>
+
 
             <script>
                 var colors = ['rgb(125, 162, 194)', 'rgb(201, 56, 56)', 'rgb(255, 132, 0)'];
                 var colorText = function(txt, colorIndex) {
                     return ('<span style="color:' + colors[colorIndex] + '"><b>' + txt + '</b></span>')
                 };
-
-                var titleText = colorText('Renda', 0) + ', ' + colorText('Gastos', 1) + ' e ' + colorText('Aplicações', 2) + ' no mês';
-                var dias = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27,
-                    28, 29, 30, 31
-                ]
-                var renda = {{rendacumulativanomes}};
-                var gasto = {{gastocumulativonomes}};
-                var aplicacao = {{aplicacaocumulativames}};
-
-                var renda = dias.map(function(e, i) {
-                    return [e, renda[i]];
-                });
-
-                var gasto = dias.map(function(e, i) {
-                    return [e, gasto[i]];
-                });
-
-                var aplicacao = dias.map(function(e, i) {
-                    return [e, aplicacao[i]];
-                });
-
+                const meses = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+                const data = new Date();
+                let mesatual = meses[data.getMonth()];
+                var titleText = colorText('Renda', 0) + ', ' + colorText('Gastos', 1) + ' e ' + colorText('Aplicações', 2) + ' no mês de ' + mesatual;
                 var chart = JSC.chart('chartDiv', {
                     debug: true,
-                    type: 'Area Spline',
+                    type: 'Area Step',
                     title_label_text: titleText,
                     title_position: 'center',
                     legend_visible: true,
+                    toolbar:{
+                        items:{"dropdown":{
+                            position: 'outside',
+                            type: "select",
+                            value: mesatual,
+                            items:{
+                                Janeiro:{},
+                                Fevereiro:{},
+                                Março:{},
+                                Abril:{},
+                                Maio:{},
+                                Junho:{},
+                                Julho:{},
+                                Agosto:{},
+                                Setembro:{},
+                                Outubro:{},
+                                Novembro:{},
+                                Dezembro:{},
+                            },
+                            events_change: function(val) {
+                                id = meses.indexOf(val) + 1
+                                chart.series(0).options({ points:{{gastocumulativonomes}}[id]});
+                                chart.series(1).options({ points:{{rendacumulativanomes}}[id]});
+                                chart.series(2).options({ points:{{aplicacaocumulativames}}[id]});
+                                var novoTitulo = colorText('Renda', 0) + ', ' + colorText('Gastos', 1) + ' e ' + colorText('Aplicações', 2) + ' no mês de ' + val;
+                                chart.options({title_label_text:novoTitulo});
+                              },
+                        }},
+                    },
                     legend: {
-                        layout: 'vertical',
-                        position: 'inside top right',
+                        layout: 'horizontal',
+                        position: 'top right',
                         template: '%name %icon'
                     },
                     yAxis: {
                         formatString: 'c',
                         label_text: "Quantia (R$)",
+                        
                     },
                     xAxis: {
+                        categories:['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31'],
                         crosshair_enabled: true,
-                        scale: {
-                            type: 'day'
-                        },
                         label_text: "Dia",
                         visible: true,
                         scale_minorInterval: 1,
                     },
+                    defaultSeries_line_width: 1, 
                     defaultSeries: {
                         shape: {
-                            opacity: 0.6,
-                            /* Dynamic gradient that will work with any color series */
-                            fill: ['lightenMore', '#f1f1f1', 90]
+                            opacity: 0.33,
+                            
                         },
                         defaultPoint_marker: {
-                            fill: 'white',
                             type: 'none',
-                            outline: {
-                                width: 2
-                            }
                         }
                     },
 
-                    series: [{
-                            name: 'Renda',
-                            points: renda,
-                            color: colors[0]
-                        },
+                    series: [
                         {
                             name: 'Gastos',
-                            points: gasto,
-                            color: colors[1]
+                            points: {{gastocumulativonomes}}[data.getMonth()+1],
+                            color: colors[1],
+                        },
+                        {
+                            name: 'Renda',
+                            points: {{rendacumulativanomes}}[data.getMonth()+1],
+                            color: colors[0],
                         },
                         {
                             name: 'Aplicações',
-                            points: aplicacao,
-                            color: colors[2]
+                            points: {{aplicacaocumulativames}}[data.getMonth()+1],
+                            color: colors[2],
                         }
                     ]
                 });
