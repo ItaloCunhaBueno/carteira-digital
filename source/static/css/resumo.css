@@ -41,8 +41,9 @@ body {
 /* LINHA 0 */
 
 .row0 {
-  display: flex;
+  display:flex;
   flex-direction: row;
+  align-items: center;
   justify-content: space-between;
   vertical-align: middle;
   border-radius: 12px;
@@ -51,6 +52,10 @@ body {
   margin: 0px 0px 10px 0px;
   width: inherit;
   background-color: white;
+}
+
+.row0 h3 {
+  color: gray
 }
 
 /* LINHA 1 */

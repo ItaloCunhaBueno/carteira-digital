@@ -113,6 +113,11 @@
             <h2><p class="material-icons">pie_chart</p> Estatísticas no Ano:</h2>
             <div id="grafRpC" style="height: 500px; max-width: inherit; margin: 0px;"></div>
             <script>
+                var colors = ['rgb(125, 162, 194)', 'rgb(201, 56, 56)'];
+                var colorText = function (txt, colorIndex) {
+                    return ('<span style="color:' + colors[colorIndex] + '"><b>' + txt + '</b></span>');
+                };
+                var titleText = colorText('Rendas', 0) + ' por categoria';
                 var chart = JSC.Chart('grafRpC', {
                     debug: true,
                     title_position: 'center',
@@ -125,7 +130,7 @@
                         pointSelection: true
                     },
                     defaultPoint_label_text: '%name',
-                    title_label_text: '<b>Rendas por Categoria</b>',
+                    title_label_text: titleText,
                     yAxis: {
                         label_text: 'R$',
                         formatString: 'n'
@@ -146,6 +151,7 @@
                 var colorText = function(txt, colorIndex) {
                     return ('<span style="color:' + colors[colorIndex] + '"><b>' + txt + '</b></span>');
                 };
+                var titleText = colorText('Renda', 0) + ' total por mês';
 
                 var meses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
                 var renda = {{GrafRpM}};
@@ -158,7 +164,7 @@
                     debug: true,
                     title_position: 'center',
                     type: 'column',
-                    title_label_text: '<b>Renda total por mês</b>',
+                    title_label_text: titleText,
                     legend_visible: true,
                     legend: {
                         position: 'top right'

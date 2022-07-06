@@ -72,7 +72,7 @@ body {
   padding: 5px 5px;
   margin: 5px;
   font-size: 16px;
-  width: 75px;
+  width: auto;
 }
 
 .container h1 {

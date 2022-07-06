@@ -144,6 +144,11 @@
                 </h2>
                 <div id="grafGpC" style="height:500px; max-width: inherit; margin:0px;"></div>
                 <script>
+                    var colors = ['rgb(125, 162, 194)', 'rgb(201, 56, 56)'];
+                    var colorText = function (txt, colorIndex) {
+                        return ('<span style="color:' + colors[colorIndex] + '"><b>' + txt + '</b></span>');
+                    };
+                    var titleText = colorText('Gastos', 1) + ' por categoria';
                     var chart = JSC.Chart('grafGpC', {
                         debug: true,
                         title_position: 'center',
@@ -156,7 +161,7 @@
                             pointSelection: true
                         },
                         defaultPoint_label_text: '%name',
-                        title_label_text: '<b>Gastos por Categoria</b>',
+                        title_label_text: titleText,
                         yAxis: {
                             label_text: 'R$',
                             formatString: 'n'
@@ -175,6 +180,7 @@
                     var colorText = function (txt, colorIndex) {
                         return ('<span style="color:' + colors[colorIndex] + '"><b>' + txt + '</b></span>');
                     };
+                    var titleText = colorText('Gasto', 1) + ' total por mês';
 
                     var meses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
                     var gasto = {{ GrafGpM }};
@@ -187,7 +193,7 @@
                         debug: true,
                         title_position: 'center',
                         type: 'column',
-                        title_label_text: '<b>Gasto total por mês</b>',
+                        title_label_text: titleText,
                         legend_visible: true,
                         legend: {
                             position: 'top right'
@@ -206,7 +212,6 @@
                         defaultSeries: {
                             shape: {
                                 opacity: 0.6,
-                                /* Dynamic gradient that will work with any color series */
                                 fill: ['lightenMore', '#f1f1f1', 90]
                             },
                             defaultPoint_marker: {

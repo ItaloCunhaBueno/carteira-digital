@@ -757,6 +757,21 @@ def exporta_renda():
     return resposta
 
 
+def exporta_aplicacoes():
+    memoria = StringIO()
+    CSV = csv.writer(memoria)
+    CURSOR.execute("SELECT * FROM aplicacoes")
+    valores = CURSOR.fetchall()
+    CSV.writerow([i[0] for i in CURSOR.description])
+    CSV.writerows(valores)
+
+    resposta = make_response(memoria.getvalue())
+    resposta.headers["Content-Disposition"] = "attachment; filename=Aplicacoes.csv"
+    resposta.headers["Content-type"] = "text/csv"
+
+    return resposta
+
+
 def adiciona_sonho(nome, meta, obs, status):
     """
     ADEQUA E ADICIONA UM SONHO NOVO NA TABELA SONHOS
@@ -1252,6 +1267,16 @@ def config_exportar_renda():
     return resposta
 
 
+@APP.route("/exportar_aplicacoes", methods=["GET"])
+def config_exportar_aplicacoes():
+    """
+    ENVIA O CSV DA TABELA DE APLICACOES
+    """
+    resposta = exporta_aplicacoes()
+
+    return resposta
+
+
 @APP.route("/info")
 def info():
     """
@@ -1271,6 +1296,6 @@ if __name__ == "__main__":
     print("")
     print("#" * 50)
     print("\n\n")
-    # webbrowser.open('http://localhost:8080', new=2)
-    # serve(APP, host='0.0.0.0', port=8080)
-    APP.run(host="0.0.0.0", port=8080, debug=True)
+    webbrowser.open('http://localhost:8080', new=2)
+    serve(APP, host='0.0.0.0', port=8080)
+    # APP.run(host="0.0.0.0", port=8080, debug=True)
