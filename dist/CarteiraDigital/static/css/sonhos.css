@@ -1,0 +1,245 @@
+/* FONT PADRAO DA PAGINA */
+
+body {
+    font-family: Tahoma, sans-serif;
+
+}
+
+/* FRAME GERAL DA PAGINA */
+
+@keyframes slideInLeft {
+    0% {
+        transform: translateX(-100%);
+    }
+
+    100% {
+        transform: translateX(0);
+    }
+}
+
+.container {
+    width: inherit;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    animation-duration: 0.5s;
+    animation-timing-function: ease-in-out;
+    animation-delay: 0s;
+    animation-name: slideInLeft;
+}
+
+.header h1 {
+    width: inherit;
+    border-radius: 12px;
+    box-shadow: 0px 0px 10px rgb(0, 0, 0, 0.2);
+    padding: 0px 10px;
+    margin: 0px 0px 10px 0px;
+    background-color: white;
+}
+
+.row1,
+.row2 {
+    width: inherit;
+    border-radius: 12px;
+    box-shadow: 0px 0px 10px rgb(0, 0, 0, 0.2);
+    padding: 0px 10px;
+    margin: 0px 0px 10px 0px;
+    background-color: white;
+}
+
+form * {
+    width: inherit;
+    padding: 5px 5px;
+    font-size: 16px;
+    margin: 5px;
+}
+
+input {
+    border: none;
+    border-bottom: 2px solid;
+    border-color: rgb(107, 172, 107);
+}
+
+input:hover {
+    border-bottom: 3px solid;
+    border-color: rgb(92, 150, 92);
+}
+
+input:focus {
+    outline: none;
+    border-bottom: 3px solid;
+    border-color: rgb(92, 150, 92);
+}
+
+select {
+    border: none;
+    border-bottom: 2px solid;
+    border-color: rgb(107, 172, 107);
+    background-color: white;
+
+}
+
+select:hover {
+    border-bottom: 3px solid;
+    border-color: rgb(92, 150, 92);
+}
+
+select:focus {
+    outline: none;
+    border-bottom: 3px solid;
+    border-color: rgb(92, 150, 92);
+}
+
+.adicionar {
+    background-color: rgb(107, 172, 107);
+    border: none;
+    border-radius: 6px;
+    box-shadow: 0px 5px 10px rgb(0, 0, 0, 0.2);
+    color: white;
+}
+
+.adicionar:hover {
+    background-color: rgb(92, 150, 92);
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.row3 {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.card {
+    display: flex;
+    flex-direction: column;
+    /* justify-content: space-between; */
+    /* min-width: 250px;
+    max-width: 20vw; */
+    border-radius: 12px;
+    box-shadow: 0px 0px 10px rgb(0, 0, 0, 0.2);
+    padding: 10px 10px;
+    margin: 0px 10px 10px 0px;
+    background-color: white;
+}
+
+.card {
+    min-width: 300px;
+    max-width: 50vw;
+    border-radius: 12px;
+    box-shadow: 0px 0px 10px rgb(0, 0, 0, 0.2);
+    padding: 10px 10px;
+    margin: 0px 10px 10px 0px;
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+}
+
+.cardConcluido {
+    min-width: 200px;
+    max-width: 20vw;
+    border-radius: 12px;
+    box-shadow: 0px 0px 10px rgb(0, 0, 0, 0.2);
+    padding: 10px 10px;
+    margin: 0px 10px 10px 0px;
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    color: rgb(0,100,0,0.3);
+    text-align: center;
+}
+
+.card form {
+    display: flex;
+    flex-direction: row;
+    margin: auto;
+    justify-content: space-between;
+}
+
+.head {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.head h2 {
+    display: block;
+    margin: auto;
+    text-align: center;
+}
+
+.linha {
+    font-size: 18px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 5px;
+}
+
+.head button {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 30px;
+    height: 30px;
+    margin: 0;
+    background-color: rgb(255, 78, 78);
+    border: none;
+    border-radius: 6px;
+    box-shadow: 0px 5px 10px rgb(0, 0, 0, 0.2);
+    color: white;
+}
+
+.head button:hover {
+    background-color: red;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.head button a {
+    position: absolute;
+    top: -2px;
+    right: -5px;
+    width: 30px;
+    height: 30px;
+    margin: 0;
+}
+
+.card form input {
+    max-width: 250px;
+}
+
+.botoes {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+}
+
+.botao {
+    background-color: rgb(107, 172, 107);
+    border: none;
+    border-radius: 6px;
+    box-shadow: 0px 5px 10px rgb(0, 0, 0, 0.2);
+    color: white;
+    width: 30px;
+    height: 30px;
+}
+
+.botao:hover {
+    background-color: rgb(92, 150, 92);
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.botoes button a {
+    position: relative;
+    top: -12px;
+    left: -15px;
+
+}

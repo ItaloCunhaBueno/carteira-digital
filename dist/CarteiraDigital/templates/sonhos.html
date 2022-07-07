@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="shortcut icon" href="{{url_for('static', filename='favicon.ico')}}" type="image/x-icon">
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+        <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/sonhos.css')}}" />
+        <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='js/jquery.toast.min.css')}}" />
+        <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='js/jquery-confirm.min.css')}}" />
+        <title>Poupança</title>
+    </head>
+
+
+    <script type="text/javascript" src="{{url_for('static', filename='js/jquery-3.6.0.min.js')}}"></script>
+    <script type="text/javascript" src="{{url_for('static', filename='js/jquery.toast.min.js')}}"></script>
+    <script type="text/javascript" src="{{url_for('static', filename='js/jquery-confirm.min.js')}}"></script>
+
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>Sonhos:</h1>
+            </div>
+            <script>
+                var message = "{{get_flashed_messages()[-1]}}";
+                if (message) {
+                    if (message.includes("Erro")) {
+                        $.toast({
+                            heading: "Erro",
+                            text: message,
+                            hideAfter: 5000,
+                            showHideTransition: "slide",
+                            icon: "error",
+                            position: "top-center",
+                            bgColor: "rgb(255, 174, 174)",
+                            textColor: "#2f3d48",
+                            loaderBg: "white",
+                            allowToastClose: true,
+                        });
+                    } else {
+                        $.toast({
+                            heading: "Sucesso",
+                            text: message,
+                            hideAfter: 5000,
+                            showHideTransition: "slide",
+                            icon: "success",
+                            position: "top-center",
+                            bgColor: "rgb(125, 162, 194)",
+                            textColor: "#2f3d48",
+                            loaderBg: "white",
+                            allowToastClose: true,
+                        });
+                    }
+                }
+            </script>
+            <div class="row1">
+                <h2>Poupança: <span style="color:rgb(107, 172, 107)" id="valorPoupanca"></span></h2>
+                <h2>Valor a ser distribuido: <span style="color:rgb(255, 132, 0)" id="valorDistribuir"></span></h2>
+                <script>
+                    var poupanca = document.getElementById('valorPoupanca');
+                    var distribuir = document.getElementById('valorDistribuir');
+
+                    var valorPoupanca = {{poupanca}};
+                    var valorDistribuir = {{aplicacaodisponivel}};
+
+                    poupanca.innerText = valorPoupanca.toLocaleString('pt-br', { style: 'currency', currency: 'BRL' });
+                    distribuir.innerText = valorDistribuir.toLocaleString('pt-br', { style: 'currency', currency: 'BRL' });
+                </script>
+            </div>
+            <div class="row2">
+                <h2>Adicionar Sonho:</h2>
+                <form action="/sonhos_add" method="post" id="sonhos_add">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Meta</th>
+                                <th>Descrição</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <input name="nome" type="text" placeholder="" />
+                                </td>
+                                <td>
+                                    <input id="dinheiro" name="meta" type="number" step="0.01" min="0"
+                                        placeholder="0.00" required />
+                                    <script>
+                                        $('#dinheiro').on('keyup', function () {
+                                            let val = (parseInt($(this).val().replace(/\D/g, '')) / 100).toFixed(2)
+                                            val = isNaN(val) ? 0 : val
+                                            $(this).val(val)
+                                        })
+                                    </script>
+                                </td>
+                                <td>
+                                    <input name="obs" type="text" placeholder="" />
+                                </td>
+                                <td>
+                                    <input type="submit" value="Adicionar" class="adicionar" />
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </form>
+            </div>
+            <div class="row3">
+                {% for card in cards %}
+                    {% if not cards[card].status == 'CONCLUIDO' %}
+                
+                        <div class="card">
+                            <div class="head">
+                                <h2 id="cardText_{{card}}">{{card}}</h2>
+                                <p>{{card.status}}</p>
+                                <script>
+                                    var TITLE = document.getElementById("cardText_{{card}}");
+                                    var text = '{{card}}'.replace(/\_/g, ' ');
+                                    TITLE.innerHTML = text;
+                                </script>
+                                <form action="/sonhos_del" method="post" id="sonhos_del_{{card}}">
+                                    <input name="nome" type="text" value={{card}} hidden />
+                                    <button type="submit" name="deletar" title="Deletar"><a
+                                            class="material-icons">close</a></button>
+                                </form>
+                                <script>
+                                    $("#sonhos_del_{{card}}").on("submit", function () {
+                                        var $this = $(this); // reference to the current scope
+                                        var nome = '{{card}}'.replace(/\_/g, ' ');
+
+                                        $.confirm({
+                                            theme: 'material',
+                                            useBootstrap: false,
+                                            title: "Tem certeza?",
+                                            icon: 'glyphicon glyphicon-heart',
+                                            content: "Tem certeza que deseja deletar o sonho '" + nome + "' ?",
+                                            type: 'red',
+                                            typeAnimated: true,
+                                            buttons: {
+                                                sim: function () {
+                                                    $this.off("submit").submit();
+                                                },
+                                                cancelar: function () { },
+                                            },
+                                        });
+
+                                        return false;
+                                    });
+                                </script>
+
+                            </div>
+                            <div class="linha">
+                                <span>Meta:</span>
+                                <span id="valorMeta_{{card}}"></span>
+                                <script>
+                                    var meta = document.getElementById('valorMeta_{{card}}');
+                                    var valor = {{cards[card].meta}};
+                                    meta.innerText = valor.toLocaleString('pt-br', { style: 'currency', currency: 'BRL' });
+                                </script>
+
+                            </div>
+                            <div class="linha">
+                                <span>Aplicado:</span>
+                                <span id="valorAplicado_{{card}}"></span>
+                                <script>
+                                    var aplicado = document.getElementById("valorAplicado_{{card}}");
+                                    var valor = {{cards[card].aplicado}};
+                                    aplicado.innerText = valor.toLocaleString('pt-br', { style: 'currency', currency: 'BRL' });
+                                </script>
+                            </div>
+                            <p>{{cards[card].obs}}</p>
+                            <div class="interativo">
+                                <form action="/aplica_sonhos" method="post" id="aplica_sonhos_{{card}}">
+                                    <input name="nome" type="text" value='{{card}}' hidden />
+                                    <input id='{{card}}' name="valor" type="number" step="0.01" min="0" placeholder="0.00"
+                                        required />
+                                    <script>
+
+                                        $('#{{card}}').on('keyup', function () {
+                                            let val = (parseInt($(this).val().replace(/\D/g, '')) / 100).toFixed(2)
+                                            val = isNaN(val) ? 0 : val
+                                            $(this).val(val)
+                                        })
+                                    </script>
+                                    <input type="submit" value="Aplicar" title="Aplicar" class="adicionar" />
+                                </form>
+                                <div class="botoes">
+                                    <form action="/edita_sonhos" method="post" id="edita_sonhos_{{card}}">
+                                        <input name="nome" type="text" value='{{card}}' hidden />
+                                        <button title="Editar" class="botao editar"><a class="material-icons">edit</a></button>
+                                    </form>
+                                    <form action="/abre_grafico_sonhos" method="post" id="abre_grafico_sonhos_{{card}}">
+                                        <input name="nome" type="text" value='{{card}}' hidden />
+                                        <button title="Gráfico" class="botao grafico"><a class="material-icons">trending_up</a></button>
+                                    </form>
+                                    <form action="/conclui_sonhos" method="post" id="conclui_sonhos_{{card}}">
+                                        <input name="nome" type="text" value='{{card}}' hidden />
+                                        <button type="submit" name="concluir" title="Concluir" class="botao concluir"><a class="material-icons">check</a></button>
+                                    </form>
+
+                                    <script>
+                                        $("#conclui_sonhos_{{card}}").on("submit", function () {
+                                            var $this = $(this); // reference to the current scope
+                                            var nome = '{{card}}'.replace(/\_/g, ' ');
+
+                                            $.confirm({
+                                                theme: 'material',
+                                                useBootstrap: false,
+                                                title: "Tem certeza?",
+                                                icon: 'glyphicon glyphicon-heart',
+                                                content: "Tem certeza que deseja concluir o sonho '" + nome + "' ?",
+                                                type: 'green',
+                                                typeAnimated: true,
+                                                buttons: {
+                                                    sim: function () {
+                                                        $this.off("submit").submit();
+                                                    },
+                                                    cancelar: function () { },
+                                                },
+                                            });
+
+                                            return false;
+                                        });
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+                {% for card in cards %}
+                    {% if cards[card].status == 'CONCLUIDO' %}
+                        <div class="cardConcluido">
+                            <div class="head">
+                                <h2 id="cardText_{{card}}">{{card}}</h2>
+                                <p>{{card.status}}</p>
+                                <script>
+                                    var TITLE = document.getElementById("cardText_{{card}}");
+                                    var text = '{{card}}'.replace(/\_/g, ' ');
+                                    TITLE.innerHTML = text;
+                                </script>
+
+                            </div>
+                            <div class="linha">
+                                <span>Meta:</span>
+                                <span id="valorMeta_{{card}}"></span>
+                                <script>
+                                    var meta = document.getElementById('valorMeta_{{card}}');
+                                    var valor = {{cards[card].meta}};
+                                    meta.innerText = valor.toLocaleString('pt-br', { style: 'currency', currency: 'BRL' });
+                                </script>
+
+                            </div>
+                            <div class="linha">
+                                <span>Aplicado:</span>
+                                <span id="valorAplicado_{{card}}"></span>
+                                <script>
+                                    var aplicado = document.getElementById("valorAplicado_{{card}}");
+                                    var valor = {{cards[card].aplicado}};
+                                    aplicado.innerText = valor.toLocaleString('pt-br', { style: 'currency', currency: 'BRL' });
+                                </script>
+                            </div>
+                            <p>{{cards[card].obs}}</p>
+                            <h3>CONCLUÍDO</h3>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </body>
+
+</html>

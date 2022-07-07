@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="shortcut icon" href="{{url_for('static', filename='favicon.ico')}}" type="image/x-icon" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+  <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/config.css')}}" />
+  <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='js/jquery.toast.min.css')}}" />
+  <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='js/jquery-confirm.min.css')}}" />
+
+  <title>Configurações</title>
+</head>
+
+<script src="{{url_for('static', filename='js/jquery-3.6.0.min.js')}}"></script>
+<script src="{{url_for('static', filename='js/jquery.toast.min.js')}}"></script>
+<script src="{{url_for('static', filename='js/jquery-confirm.min.js')}}"></script>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Configurações:</h1>
+    </div>
+
+    <script>
+      var message = "{{get_flashed_messages()[-1]}}";
+      if (message) {
+        if (message.includes("Erro")) {
+          $.toast({
+            heading: "Erro",
+            text: message,
+            hideAfter: 3000,
+            showHideTransition: "slide",
+            icon: "error",
+            position: "top-center",
+            bgColor: "rgb(255, 174, 174)",
+            textColor: "#2f3d48",
+            loaderBg: "white",
+            allowToastClose: true,
+          });
+        } else {
+          $.toast({
+            heading: "Sucesso",
+            text: message,
+            hideAfter: 3000,
+            showHideTransition: "slide",
+            icon: "success",
+            position: "top-center",
+            bgColor: "rgb(125, 162, 194)",
+            textColor: "#2f3d48",
+            loaderBg: "white",
+            allowToastClose: true,
+          });
+        }
+      }
+    </script>
+
+    <div class="categorias">
+      <h2>Adicionar ou remover categorias:</h2>
+
+      <form action="/config_add_categoria" method="post">
+        <label for="categorias">Adicionar:</label>
+        <input type="text" id="categorias" name="add_categoria" placeholder="Categoria" />
+        <input type="submit" value="Adicionar" class="btn adicionar" />
+      </form>
+
+      <form action="/config_del_categoria" method="post" id="del_cat">
+        <label for="categorias">Deletar:</label>
+        <select name="del_categoria" id="del_cat_select">
+          {% for categoria in categorias %}
+          <option value="{{categoria}}">{{categoria}}</option>
+          {% endfor %}
+        </select>
+        <input type="submit" value="Deletar" class="btn deletar" />
+      </form>
+    </div>
+
+    <div class="modais">
+      <h2>Adicionar ou remover modais:</h2>
+
+      <form action="/config_add_modal" method="post">
+        <label for="modais">Adicionar:</label>
+        <input type="text" id="modais" name="add_modal" placeholder="Modal" />
+        <input type="submit" value="Adicionar" class="btn adicionar" />
+      </form>
+
+      <form action="/config_del_modal" method="post" id="del_mod">
+        <label for="modais">Deletar:</label>
+        <select name="del_modal" id="del_mod_select">
+          {% for modal in modais %}
+          <option value="{{modal}}">{{modal}}</option>
+          {% endfor %}
+        </select>
+        <input type="submit" value="Deletar" class="btn deletar" />
+      </form>
+    </div>
+
+    <div class="exportar">
+      <h2>Exportar dados:</h2>
+      <div class="caixa">
+        <form action="/exportar_gastos" method="get">
+          <input type="submit" value="Gastos" class="adicionar" />
+        </form>
+        <form action="/exportar_renda" method="get">
+          <input type="submit" value="Renda" class="adicionar" />
+        </form>
+        <form action="/exportar_aplicacoes" method="get">
+          <input type="submit" value="Aplicações" class="adicionar" />
+        </form>
+      </div>
+      
+    </div>
+  </div>
+
+  <script>
+    $("#del_cat").on("submit", function () {
+      var $this = $(this); // reference to the current scope
+
+      $.confirm({
+        theme: 'material',
+        useBootstrap: false,
+        title: "Tem certeza?",
+        icon: 'glyphicon glyphicon-heart',
+        content: "Tem certeza que deseja remover a categoria '" + $("#del_cat_select").val() + "' ?",
+        type: 'red',
+        typeAnimated: true,
+        buttons: {
+          sim: function () {
+            $this.off("submit").submit();
+          },
+          cancelar: function () { },
+        },
+      });
+
+      return false;
+    });
+
+    $("#del_mod").on("submit", function () {
+      var $this = $(this); // reference to the current scope
+
+      $.confirm({
+        theme: 'material',
+        useBootstrap: false,
+        title: "Tem certeza?",
+        icon: 'glyphicon glyphicon-heart',
+        content: "Tem certeza que deseja remover a categoria '" + $("#del_mod_select").val() + "' ?",
+        type: 'red',
+        typeAnimated: true,
+        buttons: {
+          sim: function () {
+            $this.off("submit").submit();
+          },
+          cancelar: function () { },
+        },
+      });
+
+      return false;
+    });
+  </script>
+</body>
+
+</html>

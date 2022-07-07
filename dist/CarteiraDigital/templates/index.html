@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    <link rel="shortcut icon" href="{{url_for('static', filename='favicon.ico')}}" type="image/x-icon" />
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/index.css')}}" />
+    <title>Carteira Digital</title>
+</head>
+
+<script type="text/javascript" src="{{url_for('static', filename='js/jquery-3.6.0.min.js')}}"></script>
+
+<body>
+    <div class="navbar">
+        <ul>
+            <a href="#" onclick="abre_fecha_menu()" id="menu">
+                <li class="menubtn" title="Menu">
+                    <p class="material-icons" id="menuIcon">close</p>
+                    <span>Menu</span>
+                </li>
+            </a>
+            <a href="#" onclick="abre_pagina(this.id)" id="resumo">
+                <li class="btn 2 active" title="Resumo">
+                    <p class="material-icons">insert_chart</p>
+                    <span>Resumo</span>
+                </li>
+            </a>
+            <a href="#" onclick="abre_pagina(this.id)" id="gastos">
+                <li class="btn 3" title="Gastos">
+                    <p class="material-icons">credit_card</p>
+                    <span>Gastos</span>
+                </li>
+            </a>
+            <a href="#" onclick="abre_pagina(this.id)" id="renda">
+                <li class="btn 4" title="Renda">
+                    <p class="material-icons">monetization_on</p>
+                    <span>Renda</span>
+                </li>
+            </a>
+            <a href="#" onclick="abre_pagina(this.id)" id="sonhos">
+                <li class="btn 5" title="Sonhos">
+                    <p class="material-icons">wallet</p>
+                    <span>Sonhos</span>
+                </li>
+            </a>
+            <a href="#" onclick="abre_pagina(this.id)" id="config">
+                <li class="btn 6" title="Configurações">
+                    <p class="material-icons">settings</p>
+                    <span>Configurações</span>
+                </li>
+            </a>
+            <a href="#" onclick="abre_pagina(this.id)" id="info">
+                <li class="btn 7" title="Informações">
+                    <p class="material-icons">info</p>
+                    <span>Informações</span>
+                </li>
+            </a>
+    </div>
+    <div class="content">
+        <iframe id="conteudo" src="{{ url_for('resumo') }}"></iframe>
+    </div>
+    <script>
+        function abre_fecha_menu() {
+            var navbar = document.getElementsByClassName("navbar")[0];
+            var content = document.getElementsByClassName("content")[0];
+            var menuicon = document.getElementById("menuIcon");
+
+            if (navbar.style.width == "200px") {
+                navbar.style.width = "65px";
+                content.style.left = "75px";
+                content.style.width = "calc(100vw - 75px)";
+                menuicon.innerText = "menu";
+            } else {
+                navbar.style.width = "200px";
+                content.style.left = "210px";
+                content.style.width = "calc(100vw - 210px)";
+                menuicon.innerText = "close";
+            }
+        }
+
+        function abre_pagina(id) {
+            // Get the container element
+            var btnContainer = document.getElementsByClassName("navbar")[0];
+
+            // Get all buttons with class="btn" inside the container
+            var btns = btnContainer.getElementsByClassName("btn");
+
+            // Loop through the buttons and add the active class to the current/clicked button
+            for (var i = 0; i < btns.length; i++) {
+                btns[i].addEventListener("click", function () {
+                    var current = document.getElementsByClassName("active");
+                    current[0].className = current[0].className.replace(" active", "");
+                    this.className += " active";
+                });
+            }
+
+
+            if (id == "resumo") {
+                document.getElementById("conteudo").src = "{{ url_for('resumo') }}";
+                document.getElementsByClassName("navbar")[0].style.backgroundColor = "white";
+                $(document).ready(function () {
+                    $(".btn").css("color", "#2f3d48");
+                    $(".menubtn").css("color", "#2f3d48");
+                });
+
+            } else if (id == "gastos") {
+                document.getElementById("conteudo").src = "{{ url_for('gastos') }}";
+                document.getElementsByClassName("navbar")[0].style.backgroundColor = "rgb(201, 56, 56)";
+                $(document).ready(function () {
+                    $(".btn").css("color", "white");
+                    $(".menubtn").css("color", "white");
+                });
+
+            } else if (id == "renda") {
+                document.getElementById("conteudo").src = "{{ url_for('renda') }}";
+                document.getElementsByClassName("navbar")[0].style.backgroundColor = "#8cb4d6";
+                $(document).ready(function () {
+                    $(".btn").css("color", "white");
+                    $(".menubtn").css("color", "white8");
+                });
+
+            } else if (id == "sonhos") {
+                document.getElementById("conteudo").src = "{{ url_for('sonhos') }}";
+                document.getElementsByClassName("navbar")[0].style.backgroundColor = "rgb(107, 172, 107)";
+                $(document).ready(function () {
+                    $(".btn").css("color", "white");
+                    $(".menubtn").css("color", "white");
+                });
+
+
+            } else if (id == "config") {
+                document.getElementById("conteudo").src = "{{ url_for('config') }}";
+                document.getElementsByClassName("navbar")[0].style.backgroundColor = "white";
+                $(document).ready(function () {
+                    $(".btn").css("color", "#2f3d48");
+                    $(".menubtn").css("color", "#2f3d48");
+                });
+
+            } else if (id == "info") {
+                document.getElementById("conteudo").src = "{{ url_for('info') }}";
+                document.getElementsByClassName("navbar")[0].style.backgroundColor = "white";
+                $(document).ready(function () {
+                    $(".btn").css("color", "#2f3d48");
+                    $(".menubtn").css("color", "#2f3d48");
+                });
+
+            }
+            return false;
+        }
+
+        abre_fecha_menu();
+        abre_fecha_menu();
+        abre_pagina("resumo");
+
+    </script>
+</body>
+
+</html>

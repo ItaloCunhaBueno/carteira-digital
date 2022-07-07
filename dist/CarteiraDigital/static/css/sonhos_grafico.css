@@ -1,0 +1,54 @@
+/* FONT PADRAO DA PAGINA */
+
+body {
+    font-family: Tahoma, sans-serif;
+
+}
+
+/* FRAME GERAL DA PAGINA */
+
+@keyframes slideInLeft {
+    0% {
+        transform: translateX(-100%);
+    }
+
+    100% {
+        transform: translateX(0);
+    }
+}
+
+.container {
+    width: inherit;
+    height: 98vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    animation-duration: 0.5s;
+    animation-timing-function: ease-in-out;
+    animation-delay: 0s;
+    animation-name: slideInLeft;
+}
+
+.header h1 {
+    width: inherit;
+    border-radius: 12px;
+    box-shadow: 0px 0px 10px rgb(0, 0, 0, 0.2);
+    padding: 0px 10px;
+    margin: 0px 0px 10px 0px;
+    background-color: white;
+}
+
+.row1 {
+    display: flex;
+    height: inherit;
+    border-radius: 12px;
+    box-shadow: 0px 0px 10px rgb(0, 0, 0, 0.2);
+    padding: 0px 10px;
+    margin: 0px 0px 10px 0px;
+    background-color: white;
+}
+
+#grafico {
+    position: relative;
+    width: 100vw;
+}
