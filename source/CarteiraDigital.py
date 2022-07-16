@@ -33,6 +33,7 @@ def cria_banco(banco):
         )
 
         cursor.execute("INSERT INTO categorias (categoria) VALUES ('Poupança')")
+        cursor.execute("INSERT INTO categorias (categoria) VALUES ('Projeção')")
 
         cursor.execute(
             """CREATE TABLE "modais" (
@@ -137,7 +138,7 @@ def queryGastosMesAtual():
     """
     ANO = str(datetime.now().year)
     MES = str(datetime.now().month).zfill(2)
-    CURSOR.execute(f"SELECT strftime('%Y-%m', data) AS mes, total(valor) AS soma FROM gastos WHERE NOT categoria = 'Poupança' AND mes = '{ANO}-{MES}' GROUP BY mes ORDER BY mes")
+    CURSOR.execute(f"SELECT strftime('%Y-%m', data) AS mes, round(total(valor),2) AS soma FROM gastos WHERE NOT categoria = 'Poupança' AND mes = '{ANO}-{MES}' GROUP BY mes ORDER BY mes")
     dados = CURSOR.fetchall()
     if dados:
         dados = dados[0][1]
@@ -146,44 +147,12 @@ def queryGastosMesAtual():
     return dados
 
 
-def queryGastosCumulativoPorMes():
-    """
-    FAZ A QUERY E RETORNA O CUMULATIVO DE TODOS OS GASTOS DO MES ATUAL AUMENTANDO POR DIA
-    """
-    ANO = str(datetime.now().year)
-    CURSOR.execute(f"SELECT strftime('%m', data) AS mes, strftime('%d', data) AS dia, round(total(valor),2) AS soma FROM gastos WHERE NOT categoria = 'Poupança' AND strftime('%Y', data) = '{ANO}' GROUP BY mes, dia ORDER BY mes, dia")
-    gastos = CURSOR.fetchall()
-    gastosmeses = {}
-    for g in gastos:
-        mes = int(g[0])
-        dia = int(g[1])
-        valor = int(g[2])
-        if mes not in gastosmeses:
-            gastosmeses[mes] = {}
-        if dia not in gastosmeses[mes]:
-            gastosmeses[mes][dia] = valor
-        
-    for mes in range(1, 13):
-        valorAcumulado = 0
-        for dia in range(1, 32):
-            if mes not in gastosmeses:
-                gastosmeses[mes] = {}
-            if dia not in gastosmeses[mes]:
-                gastosmeses[mes][dia] = valorAcumulado
-            else:
-                valorAcumulado += gastosmeses[mes][dia]
-                gastosmeses[mes][dia] = valorAcumulado
-    
-    gastosmeses = {mes:sorted([(dia, gastosmeses[mes][dia]) for dia in gastosmeses[mes]]) for mes in gastosmeses}
-    return gastosmeses
-
-
 def queryGastosPorCategoria():
     """
     RETORNA A SOMATORIA DE GASTOS POR CATEGORIA NO ANO ATUAL
     """
     ANO = str(datetime.now().year)
-    CURSOR.execute(f"SELECT categoria, round(total(valor),2) FROM gastos WHERE NOT categoria = 'Poupança' AND strftime('%Y', data) = '{ANO}' GROUP BY categoria ORDER BY categoria")
+    CURSOR.execute(f"SELECT categoria, round(total(valor),2) FROM gastos WHERE NOT categoria IN ('Poupança', 'Projeção') AND strftime('%Y', data) = '{ANO}' GROUP BY categoria ORDER BY categoria")
     dados = CURSOR.fetchall()
     categorias = [c[0] for c in dados]
     valores = [v[1] for v in dados]
@@ -197,6 +166,19 @@ def queryGastosPorMes():
     """
     ANO = str(datetime.now().year)
     CURSOR.execute(f"SELECT strftime('%m', data) as mes, round(total(valor),2) FROM gastos WHERE NOT categoria = 'Poupança' AND strftime('%Y', data) = '{ANO}' GROUP BY mes ORDER BY mes")
+    valores = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    dados = {int(d[0]): d[1] for d in CURSOR.fetchall()}
+    for mes in dados:
+        valores[mes - 1] = dados[mes]
+    return valores
+
+
+def queryGastosEAplicacoesPorMes():
+    """
+    RETORNA A SOMATORIA DE GASTOS POR MES NO ANO ATUAL
+    """
+    ANO = str(datetime.now().year)
+    CURSOR.execute(f"SELECT strftime('%m', data) as mes, round(total(valor),2) FROM gastos WHERE strftime('%Y', data) = '{ANO}' GROUP BY mes ORDER BY mes")
     valores = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     dados = {int(d[0]): d[1] for d in CURSOR.fetchall()}
     for mes in dados:
@@ -255,44 +237,12 @@ def queryRendaMesAtual():
     return dados
 
 
-def queryRendaCumulativoPorMes():
-    """
-    FAZ A QUERY E RETORNA O CUMULATIVO DE TODOS AS RENDAS DO MES ATUAL SEPARADO POR DIA
-    """
-    ANO = str(datetime.now().year)
-    CURSOR.execute(f"SELECT strftime('%m', data) AS mes, strftime('%d', data) AS dia, round(total(valor),2) AS soma FROM renda WHERE strftime('%Y', data) = '{ANO}' GROUP BY mes, dia ORDER BY mes, dia")
-    rendas = CURSOR.fetchall()
-    rendasmeses = {}
-    for r in rendas:
-        mes = int(r[0])
-        dia = int(r[1])
-        valor = int(r[2])
-        if mes not in rendasmeses:
-            rendasmeses[mes] = {}
-        if dia not in rendasmeses[mes]:
-            rendasmeses[mes][dia] = valor
-        
-    for mes in range(1, 13):
-        valorAcumulado = 0
-        for dia in range(1, 32):
-            if mes not in rendasmeses:
-                rendasmeses[mes] = {}
-            if dia not in rendasmeses[mes]:
-                rendasmeses[mes][dia] = valorAcumulado
-            else:
-                valorAcumulado += rendasmeses[mes][dia]
-                rendasmeses[mes][dia] = valorAcumulado
-    
-    rendasmeses = {mes:sorted([(dia, rendasmeses[mes][dia]) for dia in rendasmeses[mes]]) for mes in rendasmeses}
-    return rendasmeses
-
-
 def queryRendaPorCategoria():
     """
     RETORNA A SOMATORIA DE RENDAS POR CATEGORIA NO ANO ATUAL
     """
     ANO = str(datetime.now().year)
-    CURSOR.execute(f"SELECT categoria, round(total(valor),2) FROM renda WHERE strftime('%Y', data) = '{ANO}' GROUP BY categoria ORDER BY categoria")
+    CURSOR.execute(f"SELECT categoria, round(total(valor),2) FROM renda WHERE NOT categoria = 'Projeção' AND strftime('%Y', data) = '{ANO}' GROUP BY categoria ORDER BY categoria")
     dados = CURSOR.fetchall()
     categorias = [c[0] for c in dados]
     valores = [v[1] for v in dados]
@@ -317,12 +267,16 @@ def querySaldo():
     """
     RETORNA O SALDO EQUIVALENTE A SOMATORIA DE RENDAS MENOS A SOMATORIA DE GASTOS
     """
-    CURSOR.execute("SELECT total(valor) FROM gastos WHERE data < date('now')")
+
+    PROXIMOMES = datetime.now() + relativedelta(months=1)
+    ANO = str(PROXIMOMES.year)
+    MES = str(PROXIMOMES.month).zfill(2)
+    CURSOR.execute(f"SELECT total(valor) FROM gastos WHERE data < DATE('{ANO}-{MES}-01')")
     try:
         gastos = CURSOR.fetchall()[0][0]
     except ValueError:
         gastos = 0
-    CURSOR.execute("SELECT total(valor) FROM renda WHERE data < date('now')")
+    CURSOR.execute(f"SELECT total(valor) FROM renda WHERE data < DATE('{ANO}-{MES}-01')")
     try:
         renda = CURSOR.fetchall()[0][0]
     except ValueError:
@@ -370,37 +324,27 @@ def queryPoupaca():
     return poupanca - valorconcluido
 
 
-def queryPoupancaCumulativaMes():
+def queryAplicacaoPorMes():
     """
-    FAZ A QUERY E RETORNA O CUMULATIVO DE TODOS AS APLICACOES DO MES ATUAL SEPARADO POR DIA
+    FAZ A QUERY E RETORNA TODAS AS APLICACOES POR MES
     """
     ANO = str(datetime.now().year)
-    CURSOR.execute(f"SELECT strftime('%m', data) AS mes, strftime('%d', data) AS dia, round(total(valor),2) AS soma FROM gastos WHERE categoria = 'Poupança' AND strftime('%Y', data) = '{ANO}' GROUP BY mes, dia ORDER BY mes, dia")
+    CURSOR.execute(f"SELECT strftime('%m', data) AS mes, round(total(valor),2) AS soma FROM gastos WHERE categoria = 'Poupança' AND strftime('%Y', data) = '{ANO}' GROUP BY mes ORDER BY mes")
     poupancas = CURSOR.fetchall()
     poupancasmeses = {}
     for p in poupancas:
         mes = int(p[0])
-        dia = int(p[1])
-        valor = int(p[2])
+        valor = p[1]
         if mes not in poupancasmeses:
-            poupancasmeses[mes] = {}
-        if dia not in poupancasmeses[mes]:
-            poupancasmeses[mes][dia] = valor
+            poupancasmeses[mes] = valor
     
     for mes in range(1, 13):
-        valorAcumulado = 0
-        for dia in range(1, 32):
-            if mes not in poupancasmeses:
-                poupancasmeses[mes] = {}
-            if dia not in poupancasmeses[mes]:
-                poupancasmeses[mes][dia] = valorAcumulado
-            else:
-                valorAcumulado += poupancasmeses[mes][dia]
-                poupancasmeses[mes][dia] = valorAcumulado
+        if mes not in poupancasmeses:
+            poupancasmeses[mes] = 0
     
-    poupancasmeses = {mes:sorted([(dia, poupancasmeses[mes][dia]) for dia in poupancasmeses[mes]]) for mes in poupancasmeses}
+    poupancasmeses = {mes:poupancasmeses[mes] for mes in sorted(poupancasmeses)}
     return poupancasmeses
-    
+
 
 def queryAplicacoes():
     """
@@ -500,7 +444,7 @@ def deletaCategoria(categoria):
         flash(f"Erro ao remover a categoria '{categoria}' da lista.")
         return False
 
-    elif categoria == "Poupança":
+    elif categoria in ["Poupança", "Projeção"]:
         flash(f"Erro: não é possível remover a categoria '{categoria}', esta categoria é parte fundamental do aplicativo.")
         return False
 
@@ -928,11 +872,13 @@ def resumo():
     """
     gastostotal = queryGastos()
     gastostotalmes = queryGastosMesAtual()
-    gastocumulativonomes = queryGastosCumulativoPorMes()
+    gastonosmeses = queryGastosPorMes()
     rendatotal = queryRenda()
     rendatotalmes = queryRendaMesAtual()
-    rendacumulativanomes = queryRendaCumulativoPorMes()
-    aplicacaocumulativames = queryPoupancaCumulativaMes()
+    rendanosmeses = queryRendaPorMes()
+    aplicacaonosmeses = queryAplicacaoPorMes()
+    aplicacaonosmeses = [aplicacaonosmeses[mes] for mes in aplicacaonosmeses]
+    gastoeaplicacoesnosmeses = queryGastosEAplicacoesPorMes()
     saldo = querySaldo()
     ultimaedicao = queryUltimaEdicao()
 
@@ -942,9 +888,10 @@ def resumo():
         renda=rendatotal,
         gastomes=gastostotalmes,
         rendames=rendatotalmes,
-        gastocumulativonomes=gastocumulativonomes,
-        rendacumulativanomes=rendacumulativanomes,
-        aplicacaocumulativames=aplicacaocumulativames,
+        gastonosmeses=gastonosmeses,
+        rendanosmeses=rendanosmeses,
+        aplicacaonosmeses=aplicacaonosmeses,
+        gastoeaplicacoesnosmeses=gastoeaplicacoesnosmeses,
         saldo=saldo,
         ultimaedicao=ultimaedicao,
     )
@@ -1296,6 +1243,6 @@ if __name__ == "__main__":
     print("")
     print("#" * 50)
     print("\n\n")
-    webbrowser.open('http://localhost:1000', new=2)
-    serve(APP, host='0.0.0.0', port=1000)
-    # APP.run(host="0.0.0.0", port=1000, debug=True)
+    # webbrowser.open('http://localhost:1000', new=2)
+    # serve(APP, host='0.0.0.0', port=1000)
+    APP.run(host="0.0.0.0", port=1000, debug=True)
